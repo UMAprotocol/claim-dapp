@@ -38,7 +38,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx,css,html,md}": [
-      "prettier --write"
+      "prettier --write",
+      "eslint --fix"
     ]
   },
   "husky": {
