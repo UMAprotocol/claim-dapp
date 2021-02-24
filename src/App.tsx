@@ -1,12 +1,12 @@
 import React from "react";
-import { Button } from "./components";
+import { ConnectionProvider } from "./hooks";
+import { Navbar } from "./components";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">Claim Dapp</header>
-      <Button>Click me</Button>
-    </div>
+    <ConnectionProvider>
+      <Navbar />
+    </ConnectionProvider>
   );
 }
 
