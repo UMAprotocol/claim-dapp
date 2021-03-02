@@ -1,11 +1,13 @@
 import React from "react";
 import { ConnectionProvider } from "./hooks";
-import { Navbar } from "./components";
+import { Navbar, AccentSection, Hero } from "./components";
 
 function App() {
   return (
     <ConnectionProvider>
-      <Navbar />
+      <AccentSection>
+        <Hero />
+      </AccentSection>
     </ConnectionProvider>
   );
 }
