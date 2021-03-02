@@ -57,6 +57,7 @@ test("should connect to the provider and save the data", async () => {
   expect(result.current.network).toBeNull();
   expect(result.current.address).toBeNull();
   expect(result.current.error).toBeNull();
+  expect(result.current.isConnected).toBe(false);
 
   await act(async () => await result.current.connect());
   expect(mockedOnboard).toHaveBeenCalledTimes(1);
@@ -72,4 +73,5 @@ test("should connect to the provider and save the data", async () => {
   expect(result.current.provider?.getNetwork).toHaveBeenCalledTimes(1);
   expect(result.current.address).toBe(fakeAddress);
   expect(result.current.error).toBeNull();
+  expect(result.current.isConnected).toBe(true);
 });

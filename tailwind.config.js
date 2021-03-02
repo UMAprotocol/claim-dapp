@@ -9,6 +9,12 @@ module.exports = {
       colors: {
         primary: "#ff4a4a",
         secondary: "#ffe41e",
+        gray: {
+          DEFAULT: "#828282",
+          dark: "#3B3B3B",
+          darker: "#313131",
+          darkest: "#191919",
+        },
       },
     },
   },
@@ -17,13 +23,3 @@ module.exports = {
   },
   plugins: [],
 };
-
-// background: #FFE41E;
-// background: #FFFFFF;
-// background: #FFFFFF 15%;
-// background: #4D4D4D;
-// background: #000000;
-// background: #000000 30%;
-// background: #191919;
-// background: #FF4A4A;
-// background: #FFFFFF 10%;
