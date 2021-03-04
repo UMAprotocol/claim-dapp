@@ -5,17 +5,9 @@ import {
   API as OnboardApi,
   Initialization,
 } from "bnc-onboard/dist/src/interfaces";
+import EventEmitter from "events";
 
 import { useConnection, ConnectionProvider } from "../hooks";
-
-function deferred() {
-  let resolve, reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { promise, resolve, reject };
-}
 
 jest.mock("bnc-onboard");
 const mockedOnboard = Onboard as jest.Mock<Partial<OnboardApi>>;
@@ -40,12 +32,10 @@ beforeAll(async () => {
   fakeProvider = new ethers.providers.Web3Provider(mockProviderFn);
   fakeNetwork = await fakeProvider.getNetwork();
 });
-
+const emitter = new EventEmitter();
 test("should connect to the provider and save the data", async () => {
-  const { promise, resolve } = deferred();
-
   mockedOnboard.mockImplementation(({ subscriptions }: Initialization) => {
-    promise.then(() => {
+    emitter.on("onboardchange", () => {
       subscriptions?.address && subscriptions.address(fakeAddress);
       subscriptions?.network && subscriptions.network(fakeNetwork.chainId);
       subscriptions?.wallet &&
@@ -74,8 +64,7 @@ test("should connect to the provider and save the data", async () => {
   expect(mockedWalletCheck).toHaveBeenCalledTimes(1);
 
   await act(async () => {
-    (resolve as any)();
-    await promise;
+    await emitter.emit("onboardchange");
   });
 
   expect(result.current.provider).toStrictEqual(fakeProvider);
