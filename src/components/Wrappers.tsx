@@ -7,4 +7,10 @@ const TextWrapper = styled.div`
     margin-top: 1em;
   }
 `;
-export { MaxWidthWrapper, TextWrapper };
+const ButtonWrapper = styled.div`
+  ${tw`w-full flex justify-center`};
+  > button + button {
+    margin-left: 10px;
+  }
+`;
+export { MaxWidthWrapper, TextWrapper, ButtonWrapper };

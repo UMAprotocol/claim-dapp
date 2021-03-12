@@ -1,11 +1,13 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useCountdown, Time } from "../hooks";
+import { useConnection, useCountdown, Time, useModal } from "../hooks";
 import { Info as UnstyledInfo } from "../assets/icons";
 import Heading from "./Heading";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
+import Modal from "./Modal";
+import Claim from "./Claim";
 
 const DateCounter: React.FC<{ date: Time }> = ({ date }) => {
   const { days, hours, minutes, seconds } = useCountdown(date);
@@ -41,23 +43,13 @@ const DateCounterWrapper = styled.div`
   grid-row-gap: 10px;
 `;
 
-function claimOptions() {
-  console.log(`Claiming KPI options...`);
-}
-function redeemOptions() {
-  console.log(`Redeeming KPI options...`);
-}
-
 const expiryDate = "Jun 30 2021";
 const KPIOptions: React.FC = () => {
   const { isConnected } = useConnection();
+  const { isOpen, open, close, modalRef } = useModal();
   const handleClick = React.useCallback(() => {
-    if (isConnected) {
-      claimOptions();
-    } else {
-      redeemOptions();
-    }
-  }, [isConnected]);
+    open();
+  }, [open]);
 
   return (
     <Wrapper>
@@ -65,7 +57,7 @@ const KPIOptions: React.FC = () => {
       <Content>
         <ContentHeader>
           <OptionName>uTVL-Jun 30</OptionName>
-          <ClaimButton onClick={handleClick}>
+          <ClaimButton onClick={handleClick} disabled={!isConnected}>
             {isConnected ? "Claim Options" : "Redeem Options"}
           </ClaimButton>
         </ContentHeader>
@@ -108,6 +100,9 @@ const KPIOptions: React.FC = () => {
           <DateCounter date={expiryDate} />
         </ExpiryWrapper>
       </Content>
+      <Modal isOpen={isOpen} onClose={close} ref={modalRef}>
+        <Claim onCancel={close} />
+      </Modal>
     </Wrapper>
   );
 };
@@ -122,6 +117,7 @@ const OptionName = styled.div`
 `;
 const ClaimButton = styled(Button)`
   padding: 15px 50px;
+  ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
 const Content = tw.div`
     border-b border-t border-gray 

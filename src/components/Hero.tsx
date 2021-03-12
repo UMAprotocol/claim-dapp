@@ -1,25 +1,71 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection } from "../hooks";
+import { useConnection, useModal } from "../hooks";
 import Button from "./Button";
 import { ReactComponent as KPILogo } from "../assets/kpi-frame.svg";
-import { Info, Settings } from "../assets/icons";
+import { Settings as SettingsIcon } from "../assets/icons";
 import { MaxWidthWrapper } from "./Wrappers";
 import Heading from "./Heading";
+import Modal from "./Modal";
+import Settings from "./Settings";
+import Claim from "./Claim";
+import Metrics from "./Metrics";
 
-function claimOptions() {
-  console.log(`Claiming KPI options...`);
-}
+const metrics = [
+  {
+    value: "$105.3",
+    quantifier: "Million",
+    description: "UMA total value locked",
+  },
+  {
+    value: "2,000,000",
+    quantifier: "UMA",
+    description: "Maximum reward",
+  },
+  {
+    value: "325,000",
+    quantifier: "UMA",
+    description: "Current expected reward",
+    extendedDescription: (
+      <p>
+        <strong>Maximum</strong> and <strong>current expected reward</strong>{" "}
+        are based on all KPI options in circulation.
+      </p>
+    ),
+  },
+  {
+    value: "100,000",
+    description: "KPI options in circulation",
+  },
+  {
+    value: "3.25x",
+    description: "Current option multiplier",
+  },
+];
+
 const Hero: React.FC = () => {
   const { isConnected, connect } = useConnection();
+  const {
+    modalRef: claimModalRef,
+    isOpen: isClaimOpen,
+    open: openClaim,
+    close: closeClaim,
+  } = useModal();
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
-      claimOptions();
+      openClaim();
     } else {
       connect();
     }
-  }, [connect, isConnected]);
+  }, [connect, isConnected, openClaim]);
+  const {
+    modalRef: settingsModalRef,
+    isOpen: isSettingsOpen,
+    open: openSettings,
+    close: closeSettings,
+  } = useModal();
+
   return (
     <MaxWidthWrapper>
       <Wrapper>
@@ -38,60 +84,24 @@ const Hero: React.FC = () => {
                 : "Connect Wallet to Claim Options"}
             </StyledButton>
             {isConnected && (
-              <StyledButton variant="secondary">
-                Connected <Settings />
+              <StyledButton variant="secondary" onClick={openSettings}>
+                Connected <SettingsIcon />
               </StyledButton>
             )}
           </ButtonsWrapper>
+          <Modal
+            ref={settingsModalRef}
+            isOpen={isSettingsOpen}
+            onClose={closeSettings}
+          >
+            <Settings onCancel={closeSettings} onSave={closeSettings} />
+          </Modal>
         </CTAWrapper>
-        <MetricsWrapper>
-          <MetricsGrid>
-            <Metric>
-              <div>
-                <MetricBigHeading level={1}>$105.3</MetricBigHeading>
-                <div>Million</div>
-              </div>
-              <MetricDescription>UMA total value locked</MetricDescription>
-            </Metric>
-            <Metric>
-              <MetricHeader>
-                <MetricHeading level={2}>2,000,000</MetricHeading>
-                <MetricQuantifier>UMA</MetricQuantifier>
-              </MetricHeader>
-              <MetricDescription>
-                Maximum reward <Info />
-              </MetricDescription>
-            </Metric>
-            <Metric>
-              <MetricHeader>
-                <MetricHeading level={2}>325,000</MetricHeading>
-                <MetricQuantifier>UMA</MetricQuantifier>
-              </MetricHeader>
-              <MetricDescription>
-                Current expected reward <Info />
-              </MetricDescription>
-            </Metric>
-            <Metric>
-              <MetricHeader>
-                <MetricHeading level={2}>100,000</MetricHeading>
-                <MetricQuantifier></MetricQuantifier>
-              </MetricHeader>
-              <MetricDescription>
-                KPI options in circulation <Info />
-              </MetricDescription>
-            </Metric>
-            <Metric>
-              <MetricHeader>
-                <MetricHeading level={2}>3.25x</MetricHeading>
-                <MetricQuantifier></MetricQuantifier>
-              </MetricHeader>
-              <MetricDescription>
-                Current option multiplier <Info />
-              </MetricDescription>
-            </Metric>
-          </MetricsGrid>
-        </MetricsWrapper>
+        <Metrics metrics={metrics} />
       </Wrapper>
+      <Modal ref={claimModalRef} isOpen={isClaimOpen} onClose={closeClaim}>
+        <Claim onCancel={closeClaim} />
+      </Modal>
     </MaxWidthWrapper>
   );
 };
@@ -114,41 +124,5 @@ const ButtonsWrapper = styled.div`
 const StyledButton = styled(Button)`
   padding: 6px 30px;
 `;
-const MetricsWrapper = tw.div`
- w-full mt-8 border-t border-black border-opacity-50
-`;
-const MetricsGrid = styled.div`
-  ${tw`grid gap-x-5 pt-8`};
-  grid-template-columns: 380px 1fr 1fr;
-`;
-const Metric = tw.div`
-  first:row-span-2 py-5 border-b border-black border-opacity-50 flex flex-col justify-between
-`;
-const MetricHeader = tw.div`flex items-baseline`;
-const MetricHeading = styled(Heading)`
-  font-size: 42px;
-  ${tw`mb-5`};
-`;
-const MetricBigHeading = styled(Heading)`
-  font-size: 100px;
-  line-height: 1.08;
-  ~ div {
-    ${tw`font-semibold`};
-    font-size: 42px;
-    line-height: 1.375;
-  }
-`;
-const MetricQuantifier = styled.div`
-  ${tw`font-semibold ml-2`};
-  font-size: 22px;
-`;
 
-const MetricDescription = styled.div`
-  font-size: 22px;
-  ${tw`flex items-center font-semibold`};
-  > svg {
-    ${tw`hover:cursor-pointer`}
-    margin-left: 10px;
-  }
-`;
 export default Hero;

@@ -156,7 +156,10 @@ export function useConnection() {
             dispatch({ type: "set address", address });
           },
           network: async (networkId: any) => {
-            if (!SUPPORTED_NETWORK_IDS.includes(networkId)) {
+            if (
+              !SUPPORTED_NETWORK_IDS.includes(networkId) &&
+              networkId != null
+            ) {
               throw new Error(
                 "This dApp will work only with the Mainnet or Kovan network"
               );
@@ -197,6 +200,18 @@ export function useConnection() {
     }
   }, [dispatch, network, onboard]);
 
+  const disconnect = React.useCallback(() => {
+    if (!isConnected) {
+      return;
+    }
+    onboard?.walletReset();
+    dispatch({ type: "set address", address: null });
+    dispatch({ type: "set provider", provider: null });
+    dispatch({ type: "set signer", signer: null });
+    dispatch({ type: "set network", network: null });
+    dispatch({ type: "set connection status", isConnected: false });
+    dispatch({ type: "set onboard", onboard: null });
+  }, [dispatch, isConnected, onboard]);
   return {
     provider,
     onboard,
@@ -206,5 +221,6 @@ export function useConnection() {
     error,
     isConnected,
     connect,
+    disconnect,
   };
 }
