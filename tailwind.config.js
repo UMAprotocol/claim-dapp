@@ -1,11 +1,25 @@
 module.exports = {
-  purge: [],
+  purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Halyard Display", "Helvetica", "Arial", "sans-serif"],
+      },
+      colors: {
+        primary: "#ff4a4a",
+        secondary: "#ffe41e",
+        gray: {
+          DEFAULT: "#828282",
+          dark: "#3B3B3B",
+          darker: "#313131",
+          darkest: "#191919",
+        },
+      },
+    },
   },
   variants: {
     extend: {},
   },
   plugins: [],
-}
+};

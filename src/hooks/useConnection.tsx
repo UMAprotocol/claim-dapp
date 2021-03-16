@@ -17,6 +17,7 @@ type ConnectionState = {
   network: Network | null;
   address: Address | null;
   error: Error | null;
+  isConnected: boolean;
 };
 
 type Action =
@@ -43,6 +44,10 @@ type Action =
   | {
       type: "set error";
       error: Error | null;
+    }
+  | {
+      type: "set connection status";
+      isConnected: boolean;
     };
 
 type ConnectionDispatch = React.Dispatch<Action>;
@@ -98,6 +103,12 @@ function connectionReducer(state: ConnectionState, action: Action) {
         error: action.error,
       };
     }
+    case "set connection status": {
+      return {
+        ...state,
+        isConnected: action.isConnected,
+      };
+    }
     default: {
       throw new Error(`Unsopported action type ${(action as any).type}`);
     }
@@ -114,6 +125,7 @@ export const ConnectionProvider: React.FC<WithDelegatedProps> = ({
     network: null,
     address: null,
     error: null,
+    isConnected: false,
   });
 
   return (
@@ -130,7 +142,7 @@ export function useConnection() {
   }
 
   const [
-    { provider, onboard, signer, network, address, error },
+    { provider, onboard, signer, network, address, error, isConnected },
     dispatch,
   ] = context;
   const connect = React.useCallback(async () => {
@@ -175,8 +187,11 @@ export function useConnection() {
         walletCheck: config(network).onboardConfig.walletCheck,
       });
       await onboardInstance.walletSelect();
-      await onboardInstance.walletCheck();
-      dispatch({ type: "set onboard", onboard: onboardInstance });
+      const isReady = await onboardInstance.walletCheck();
+      if (isReady) {
+        dispatch({ type: "set onboard", onboard: onboardInstance });
+        dispatch({ type: "set connection status", isConnected: true });
+      }
     } catch (error) {
       dispatch({ type: "set error", error });
     }
@@ -189,6 +204,7 @@ export function useConnection() {
     network,
     address,
     error,
+    isConnected,
     connect,
   };
 }
