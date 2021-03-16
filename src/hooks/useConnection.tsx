@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import Onboard from "bnc-onboard";
 import { API as OnboardApi, Wallet } from "bnc-onboard/dist/src/interfaces";
 
-import config from "../config";
+import config, { SUPPORTED_NETWORK_IDS } from "../config";
 
 type Provider = ethers.providers.Web3Provider;
 type Address = string;
@@ -57,7 +57,6 @@ type WithDelegatedProps = {
   [k: string]: unknown;
 };
 
-const SUPPORTED_NETWORK_IDS: number[] = [1, 42];
 const EMPTY: unique symbol = Symbol();
 
 const ConnectionContext = React.createContext<
@@ -190,11 +189,10 @@ export function useConnection() {
         walletCheck: config(network).onboardConfig.walletCheck,
       });
       await onboardInstance.walletSelect();
-      const isReady = await onboardInstance.walletCheck();
-      if (isReady) {
-        dispatch({ type: "set onboard", onboard: onboardInstance });
-        dispatch({ type: "set connection status", isConnected: true });
-      }
+      await onboardInstance.walletCheck();
+
+      dispatch({ type: "set onboard", onboard: onboardInstance });
+      dispatch({ type: "set connection status", isConnected: true });
     } catch (error) {
       dispatch({ type: "set error", error });
     }

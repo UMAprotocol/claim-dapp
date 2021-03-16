@@ -1,7 +1,7 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal } from "../hooks";
+import { useConnection, useModal, useTvl } from "../hooks";
 import Button from "./Button";
 import { ReactComponent as KPILogo } from "../assets/kpi-frame.svg";
 import { Settings as SettingsIcon } from "../assets/icons";
@@ -12,7 +12,7 @@ import Settings from "./Settings";
 import Claim from "./Claim";
 import Metrics from "./Metrics";
 
-const metrics = [
+const defaultMetrics = [
   {
     value: "$105.3",
     quantifier: "Million",
@@ -80,6 +80,19 @@ const Hero: React.FC = () => {
     open: openSettings,
     close: closeSettings,
   } = useModal();
+
+  const { data: tvlData } = useTvl();
+  const metrics = React.useMemo(() => {
+    if (tvlData) {
+      const { currentTvl } = tvlData;
+      const tvlInMilions = (Number(currentTvl) / 10 ** 6).toFixed(1);
+      return [
+        { ...defaultMetrics[0], value: `$${tvlInMilions}` },
+        ...defaultMetrics.slice(1),
+      ];
+    }
+    return defaultMetrics;
+  }, [tvlData]);
 
   return (
     <MaxWidthWrapper>

@@ -44,7 +44,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <Wrapper>
       <Label>
-        <span>TVL.</span> {current} of {max}
+        <span>TVL.</span> {current.toFixed(0)} of {max}
         {description && (
           <Info onMouseOver={handleMouseOver} onMouseLeave={hideTooltip} />
         )}

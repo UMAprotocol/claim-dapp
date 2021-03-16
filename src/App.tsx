@@ -1,4 +1,5 @@
 import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import {
   Section,
   AccentSection,
@@ -8,29 +9,33 @@ import {
   Footer,
   Options,
 } from "./components";
-import { ConnectionProvider, ClaimProvider } from "./hooks";
+import { ConnectionProvider, OptionsProvider } from "./hooks";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <ConnectionProvider>
-      <ClaimProvider>
-        <Navbar />
-        <main>
-          <AccentSection>
-            <Hero />
-          </AccentSection>
-          <Section>
-            <Options />
-          </Section>
-          <AccentSection>
-            <About />
-          </AccentSection>
-          <Section>
-            <Footer />
-          </Section>
-        </main>
-      </ClaimProvider>
-    </ConnectionProvider>
+    <QueryClientProvider client={queryClient}>
+      <ConnectionProvider>
+        <OptionsProvider>
+          <Navbar />
+          <main>
+            <AccentSection>
+              <Hero />
+            </AccentSection>
+            <Section>
+              <Options />
+            </Section>
+            <AccentSection>
+              <About />
+            </AccentSection>
+            <Section>
+              <Footer />
+            </Section>
+          </main>
+        </OptionsProvider>
+      </ConnectionProvider>
+    </QueryClientProvider>
   );
 }
 

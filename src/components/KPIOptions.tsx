@@ -1,7 +1,7 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal } from "../hooks";
+import { useConnection, useModal, usePayouts, useTvl } from "../hooks";
 import Heading from "./Heading";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
@@ -12,13 +12,13 @@ import InfoList, { InfoProps } from "./InfoList";
 import { expiryDate } from "../config";
 
 const defaultInfos: Record<string, InfoProps> = {
-  quantitity: {
+  quantity: {
     label: "Quantity",
     value: "Claim to reveal",
   },
   expiry: {
     label: "Expiry",
-    value: "December 30, 2021",
+    value: expiryDate,
   },
   minPayout: {
     label: "Min. Payout",
@@ -52,6 +52,11 @@ const defaultInfos: Record<string, InfoProps> = {
 const KPIOptions: React.FC = () => {
   const { isConnected } = useConnection();
   const { isOpen, open, close, modalRef } = useModal();
+  const { data: tvlData } = useTvl();
+  const values = usePayouts();
+
+  const tvl = tvlData?.currentTvl;
+  const infos = React.useMemo(() => updateInfos(values), [values]);
   const handleClick = React.useCallback(() => {
     open();
   }, [open]);
@@ -63,12 +68,16 @@ const KPIOptions: React.FC = () => {
         <ContentHeader>
           <OptionName>uTVL-Jun 30</OptionName>
           <ClaimButton onClick={handleClick} disabled={!isConnected}>
-            {isConnected ? "Claim Options" : "Redeem Options"}
+            Claim Options
           </ClaimButton>
         </ContentHeader>
         <ContentMain>
-          <ProgressBar max={20} current={3} description="UMA’s current TVL" />
-          <InfoList infos={Object.values(defaultInfos)} />
+          <ProgressBar
+            max={2000}
+            current={Number(tvl ?? 0.15 * 10 ** 9) / 10 ** 6}
+            description="UMA’s current TVL"
+          />
+          <InfoList infos={Object.values(infos)} />
         </ContentMain>
         <Expiry
           expiryDate={expiryDate}
@@ -101,3 +110,12 @@ const ContentHeader = tw.div`
     flex justify-between items-center bg-gray-darkest p-5
 `;
 const ContentMain = tw.div`p-5`;
+
+function updateInfos(values: { [key: string]: unknown } | undefined) {
+  return values
+    ? Object.keys(defaultInfos).reduce((obj, key) => {
+        const value = values[key] || defaultInfos[key].value;
+        return { ...obj, [key]: { ...defaultInfos[key], value } };
+      }, {})
+    : defaultInfos;
+}

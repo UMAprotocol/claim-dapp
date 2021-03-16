@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import merkleDistributor from "@uma/core/build/contracts/MerkleDistributor.json";
 type Network = ethers.providers.Network;
 
 export default function config(network: Network | null) {
@@ -54,4 +55,28 @@ export default function config(network: Network | null) {
   };
 }
 
-export const expiryDate = process.env.REACT_APP_EXPIRY_DATE || "Jun 30 2021";
+export const expiryDate = process.env.REACT_APP_EXPIRY_DATE || "June 30 2021";
+export const SUPPORTED_NETWORK_IDS = [1, 42] as const;
+
+const getMerkleDistributorAddress = (chainId: 1 | 42) =>
+  chainId === 1
+    ? process.env.REACT_APP_PUBLIC_MAINNET_DISTRIBUTOR_ADDRESS || ""
+    : process.env.REACT_APP_PUBLIC_KOVAN_DISTRIBUTOR_ADDRESS || "";
+
+export const contracts = {
+  merkleDistributorABI: merkleDistributor.abi,
+  getMerkleDistributorAddress,
+};
+
+export const currentWindowIndex = Number(
+  process.env.REACT_APP_PUBLIC_WINDOW_INDEX
+);
+
+export const URLS = {
+  TVLEndpoint:
+    process.env.REACT_APP_PUBLIC_TVL_ENDPOINT ||
+    "https://api.umaproject.org/uma-tvl",
+  merkleProofHelper:
+    process.env.REACT_APP_PUBLIC_MERKLE_PROOF_HELPER ||
+    "https://api.umaproject.org/get-claims",
+};
