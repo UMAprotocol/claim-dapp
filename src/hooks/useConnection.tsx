@@ -187,9 +187,11 @@ export function useConnection() {
         walletCheck: config(network).onboardConfig.walletCheck,
       });
       await onboardInstance.walletSelect();
-      await onboardInstance.walletCheck();
-      dispatch({ type: "set onboard", onboard: onboardInstance });
-      dispatch({ type: "set connection status", isConnected: true });
+      const isReady = await onboardInstance.walletCheck();
+      if (isReady) {
+        dispatch({ type: "set onboard", onboard: onboardInstance });
+        dispatch({ type: "set connection status", isConnected: true });
+      }
     } catch (error) {
       dispatch({ type: "set error", error });
     }
