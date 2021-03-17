@@ -6,6 +6,7 @@ export function useModal(initialState = false) {
   const close = React.useCallback(() => setOpen(false), []);
   const open = React.useCallback(() => setOpen(true), []);
   const ref = React.useRef<HTMLElement>();
+  // The focus trap is used to make sure the user can't tab out of the modal.
   const focusTrapRef = useFocusTrap(isOpen);
   const modalRef = React.useCallback(
     (node: HTMLElement | null) => {
@@ -57,10 +58,16 @@ export function useModal(initialState = false) {
       return;
     }
     const overflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = "hidden";
+    const paddingRight = document.documentElement.style.paddingRight;
 
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
     return () => {
       document.documentElement.style.overflow = overflow;
+      document.documentElement.style.paddingRight = paddingRight;
     };
   }, [isOpen]);
 

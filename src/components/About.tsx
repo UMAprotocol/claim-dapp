@@ -11,11 +11,18 @@ const About: React.FC = () => {
         <MainHeading level={3}>About UMA KPI Options</MainHeading>
         <TextWrapper>
           <p>
-            UMA will be airdropping a new incentivization mechanism called a
-            “KPI option” to a curated list of addresses in DeFi. The value of
-            these options depends on the TVL of the UMA protocol, thereby giving
-            every recipient an incentive to grow the protocol. (KPI = key
-            performance indicator)
+            UMA has airdropped a new incentivization mechanism called a Key
+            Performance Indicator (KPI) option to a{" "}
+            <Link
+              href="https://github.com/UMAprotocol/token-distribution/blob/master/outputs/governance_recipients.json"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              curated list of addresses
+            </Link>{" "}
+            in DeFi. The token airdropped is called uTVL-JUN and the value of
+            each token option depends on UMA’s Total Value Locked (TVL), thereby
+            giving every recipient an incentive to grow UMA protocol.
           </p>
           <p>
             Compared to a typical airdrop which can be easily dumped, KPI
@@ -23,18 +30,27 @@ const About: React.FC = () => {
             core KPI of the protocol grows.
           </p>
           <p>
-            The Risk Labs foundation has allotted 2,000,000 $UMA [~$60M USD] for
-            this purpose. The target date for the close of this program is June
-            2021, at which point the KPI options will be redeemable for $UMA.
-            These tokens will have a minimum value of 1 $UMA each — but if the
-            KPI target is hit, they will pay out 20 $UMA, a 20x increase.
+            he Risk Labs foundation has allotted 2,000,000 UMA tokens for this
+            purpose. uTVL-JUN holders will be able to redeem their token options
+            for UMA tokens on July 1, 2021 at 00:00 UTC. uTVL-JUN tokens will
+            have a minimum value of 0.1 $UMA each — but if the KPI target is
+            hit, they will pay out 2 $UMA. View{" "}
             <Link
-              href="https://www.umaproject.org"
+              href="https://medium.com/uma-project/uma-kpi-options-and-airdrop-bae86be16ce4"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              here
+            </Link>{" "}
+            to learn more about KPI options and{" "}
+            <Link
+              href="https://medium.com/uma-project/uma-airdrop-recipient-addresses-a9ba41dfadc2"
               rel="noopener norefferrer"
               target="_blank"
             >
-              Read more
-            </Link>
+              airdrop
+            </Link>{" "}
+            details.
           </p>
         </TextWrapper>
       </Wrapper>

@@ -16,12 +16,18 @@ const metrics = [
   {
     value: "$105.3",
     quantifier: "Million",
-    description: "UMA total value locked",
+    description: "UMA’s Total Value Locked (TVL)",
   },
   {
     value: "2,000,000",
     quantifier: "UMA",
     description: "Maximum reward",
+    extendedDescription: (
+      <p>
+        The maximum amount of UMA tokens that will be redeemable by uTVL-JUN
+        token holders If UMA’s TVL reaches $2 billion
+      </p>
+    ),
   },
   {
     value: "325,000",
@@ -29,18 +35,27 @@ const metrics = [
     description: "Current expected reward",
     extendedDescription: (
       <p>
-        <strong>Maximum</strong> and <strong>current expected reward</strong>{" "}
-        are based on all KPI options in circulation.
+        The expected amount of UMA tokens that will be redeemable by uTVL-JUN
+        token holders based on UMA’s current TVL
       </p>
     ),
   },
   {
     value: "100,000",
     description: "KPI options in circulation",
+    extendedDescription: (
+      <p>The total amount of uTVL-JUN options in circulation</p>
+    ),
   },
   {
     value: "3.25x",
     description: "Current option multiplier",
+    extendedDescription: (
+      <p>
+        Used to calculate the amount of UMA each uTVL-JUN option is worth; the
+        higher UMA’s TVL, the higher the multiplier
+      </p>
+    ),
   },
 ];
 

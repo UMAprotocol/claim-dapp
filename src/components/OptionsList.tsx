@@ -1,25 +1,60 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
+
 import Heading from "./Heading";
 import Button from "./Button";
 import Link from "./Link";
 
-const options = Array(6).fill({
-  name: "Project",
-  description:
-    "The uGas token being managed by the YAM team in collaberation with UMA. Build for Degens.",
-  imgUrl: "",
-  mintLink: "https://github.com/",
-});
+const defaultProjects = [
+  {
+    name: "OpenDAO",
+    description: (
+      <>
+        Leverage ETH or BTC to mint{" "}
+        <Link
+          href="https://medium.com/uma-project/the-yield-dollar-on-uma-3a492e79069f"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          yield dollars
+        </Link>
+      </>
+    ),
+    mintLink: "https://opendao.io/",
+  },
+  {
+    name: "uGAS - Ethereum Gas Futures",
+    description:
+      "A synthetic futures contract that settles to the 30-Day Median Ethereum Gas Price. Speculate on Ethereum gas prices with a Long or Short uGAS position. uGAS can be used as a hedge against the cost of gas on the Ethereum blockchain.",
+    mintLink: "https://degenerative.finance/",
+  },
+  {
+    name: "uSTONKS",
+    description:
+      "A synthetic that tracks the ten most bullish Wall Street Bets stocks and captures the sentiment of the r/WSB community.",
+    mintLink: "https://degenerative.finance/",
+  },
+  {
+    name: "Mario Cash",
+    description: "A Bitcoin Cash synthetic token backed by renBTC.",
+    mintLink: "https://mario.cash/",
+  },
+];
+
 const OptionsList: React.FC = () => {
   const [expanded, setExpanded] = React.useState(false);
-  const optionsToShow = options.slice(0, expanded ? options.length : 4);
+  const numberToShow = 4;
+  const optionsToShow = defaultProjects.slice(
+    0,
+    expanded ? defaultProjects.length : numberToShow
+  );
   return (
     <Wrapper>
       <MainHeading level={3}>Help UMA level up</MainHeading>
       <About>
-        The more you mint, the more UMA’s TVL will grow. Below is a list of
-        projects that lorem ipsum dolor sit amet.
+        The more synthetic tokens you mint, the more UMA’s TVL will grow and the
+        more uTVL-JUN options will be worth! Grow UMA’s TVL by using any of the
+        below products!
       </About>
       <List>
         {optionsToShow.map((option) => (
@@ -43,14 +78,16 @@ const OptionsList: React.FC = () => {
           </li>
         ))}
       </List>
-      <SeeAllButton
-        variant="secondary"
-        onClick={() => {
-          setExpanded(!expanded);
-        }}
-      >
-        {expanded ? "See Less" : "See All Projects"}
-      </SeeAllButton>
+      {numberToShow < defaultProjects.length && (
+        <SeeAllButton
+          variant="secondary"
+          onClick={() => {
+            setExpanded(!expanded);
+          }}
+        >
+          {expanded ? "See Less" : "See All Projects"}
+        </SeeAllButton>
+      )}
     </Wrapper>
   );
 };
