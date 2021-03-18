@@ -8,26 +8,28 @@ import {
   Footer,
   Options,
 } from "./components";
-import { ConnectionProvider } from "./hooks";
+import { ConnectionProvider, ClaimProvider } from "./hooks";
 
 function App() {
   return (
     <ConnectionProvider>
-      <Navbar />
-      <main>
-        <AccentSection>
-          <Hero />
-        </AccentSection>
-        <Section>
-          <Options />
-        </Section>
-        <AccentSection>
-          <About />
-        </AccentSection>
-        <Section>
-          <Footer />
-        </Section>
-      </main>
+      <ClaimProvider>
+        <Navbar />
+        <main>
+          <AccentSection>
+            <Hero />
+          </AccentSection>
+          <Section>
+            <Options />
+          </Section>
+          <AccentSection>
+            <About />
+          </AccentSection>
+          <Section>
+            <Footer />
+          </Section>
+        </main>
+      </ClaimProvider>
     </ConnectionProvider>
   );
 }
