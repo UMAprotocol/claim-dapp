@@ -1,5 +1,4 @@
 import { useQuery } from "react-query";
-import { URLS } from "../config";
 
 type Price = {
   [k: string]: {
@@ -17,14 +16,4 @@ async function getPrice(symbol: string) {
 
   const priceResponse = await response.json();
   return priceResponse;
-}
-
-type TVLData = {
-  currentTvl: string;
-};
-
-export function useTvl() {
-  return useQuery<TVLData>("tvl", () =>
-    fetch(URLS.TVLEndpoint).then((res) => res.json())
-  );
 }

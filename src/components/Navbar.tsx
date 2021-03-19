@@ -28,7 +28,9 @@ const links = [
 const Navbar: React.FC = () => (
   <Wrapper>
     <NavWrapper as="nav">
-      <Logo />
+      <Link href="https://umaproject.org">
+        <Logo />
+      </Link>
       <LinksWrapper>
         <LinksList>
           {links.map((link) => (

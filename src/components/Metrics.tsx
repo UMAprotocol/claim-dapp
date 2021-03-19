@@ -8,8 +8,8 @@ import { useTooltip } from "../hooks";
 type TMetric = {
   value: string | number;
   quantifier?: string;
-  description: string;
-  extendedDescription?: string | React.ReactNode;
+  description: React.ReactNode;
+  extendedDescription?: React.ReactNode;
 };
 type MetricProps = {
   big?: boolean;
@@ -41,7 +41,7 @@ const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
         <BigHeading level={1}>{value}</BigHeading>
         <div>{quantifier}</div>
       </div>
-      <Description>UMA total value locked</Description>
+      <Description>{description}</Description>
     </>
   ) : (
     <>

@@ -2,6 +2,7 @@ import React from "react";
 import tw, { styled } from "twin.macro";
 
 import { useConnection, useModal, usePayouts, useTvl } from "../hooks";
+
 import Heading from "./Heading";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
@@ -14,7 +15,7 @@ import { expiryDate } from "../config";
 const defaultInfos: Record<string, InfoProps> = {
   quantity: {
     label: "Quantity",
-    value: "Claim to reveal",
+    value: "-",
   },
   expiry: {
     label: "Expiry",
@@ -25,7 +26,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The minimum amount of UMA all of your uTVL-JUN options will be worth
+        The <strong>minimum</strong> amount of UMA all of your uTVL-JUN options
+        will be worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -34,7 +36,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The current amount of UMA all of your uTVL-JUN options are worth
+        The <strong>current</strong> amount of UMA all of your uTVL-JUN options
+        are worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -43,8 +46,9 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The maximum amount of UMA all of your uTVL-JUN options can be worth if
-        UMA’s TVL reaches $2 billion
+        The <strong>maximum</strong> amount of UMA all of your uTVL-JUN options
+        can be worth if UMA’s TVL reaches $2 billion{" "}
+        <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -75,7 +79,14 @@ const KPIOptions: React.FC = () => {
           <ProgressBar
             max={2000}
             current={Number(tvl ?? 0.15 * 10 ** 9) / 10 ** 6}
-            description="UMA’s current TVL"
+            description={
+              <p>
+                Track <strong>UMA’s progress</strong> towards reaching{" "}
+                <strong>$2 billion!</strong> If UMA’s TVL reaches $2 billion,{" "}
+                <strong>uTVL-JUN</strong> token holders receive the{" "}
+                <strong>max</strong> payout at expiry!
+              </p>
+            }
           />
           <InfoList infos={Object.values(infos)} />
         </ContentMain>

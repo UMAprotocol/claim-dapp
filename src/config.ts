@@ -1,9 +1,10 @@
 import { ethers } from "ethers";
 import merkleDistributor from "@uma/core/build/contracts/MerkleDistributor.json";
+import ERC20 from "@uma/core/build/contracts/ERC20.json";
 type Network = ethers.providers.Network;
 
+export const infuraId = process.env.REACT_APP_PUBLIC_INFURA_ID || "";
 export default function config(network: Network | null) {
-  const infuraId = process.env.REACT_APP_PUBLIC_INFURA_ID || "";
   const infuraRpc = `https://${
     network ? network?.name : "mainnet"
   }.infura.io/v3/${infuraId}`;
@@ -66,6 +67,14 @@ const getMerkleDistributorAddress = (chainId: 1 | 42) =>
 export const contracts = {
   merkleDistributorABI: merkleDistributor.abi,
   getMerkleDistributorAddress,
+};
+
+export const KPIOptionsToken = {
+  abi: ERC20.abi,
+  address: (chainId: 1 | 42) =>
+    chainId === 1
+      ? process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || ""
+      : process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "",
 };
 
 export const currentWindowIndex = Number(

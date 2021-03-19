@@ -1,21 +1,21 @@
-import React from "react";
-import { getOptionsDollarValue } from "../utils";
+import { ethers } from "ethers";
 import { useOptions } from "./useOptions";
-import { usePrice, useTvl } from "./usePrice";
+import { useTvl } from "./useTvl";
 
 export function usePayouts() {
   const { claims } = useOptions();
-  const { data: priceData } = usePrice();
-  const { data: tvlData } = useTvl();
+  const { data: tvlData, minPayout, maxPayout, currentPayout } = useTvl();
 
   const claim = claims && claims.length > 0 ? claims[0] : undefined;
-  const price = priceData?.uma.usd;
   const tvl = tvlData?.currentTvl;
-  const payouts = React.useMemo(() => {
-    if (price && tvl && claim) {
-      return getOptionsDollarValue(claim.amount, price, tvl);
-    }
-  }, [claim, price, tvl]);
-
-  return payouts;
+  const quantity = parseFloat(
+    ethers.utils.formatUnits(ethers.BigNumber.from(claim?.amount ?? 0), "ether")
+  );
+  return {
+    quantity,
+    tvl,
+    minPayout,
+    maxPayout,
+    currentPayout,
+  };
 }

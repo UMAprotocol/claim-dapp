@@ -9,7 +9,7 @@ type ProgressBarProps = {
   current: number;
   width?: number;
   height?: number;
-  description?: string;
+  description?: React.ReactNode;
 };
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -24,6 +24,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     current,
     width,
   });
+
   const {
     tooltipOpen,
     tooltipLeft,
@@ -33,28 +34,50 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     TooltipComponent: Tooltip,
   } = useTooltip();
 
-  const handleMouseOver = (event: React.MouseEvent<SVGElement, MouseEvent>) => {
-    const { top, left } = getPageCoords(event.currentTarget);
-    const rect = event.currentTarget.getBoundingClientRect();
+  const descriptionRef = React.useRef<React.ReactNode>();
+
+  const progressDescription = (
+    <p>
+      <strong>{formatMillions(current)}</strong> out of{" "}
+      <strong>{formatMillions(max)}</strong>
+    </p>
+  );
+
+  const handleMouseOver = (
+    event: React.MouseEvent<HTMLElement | SVGElement, MouseEvent>,
+    isBar: boolean
+  ) => {
+    // set the description based on which element was clicked
+    descriptionRef.current = isBar ? progressDescription : description;
+    const { top, left, right, width } = getPageCoords(event.currentTarget);
+    // The -16 and plus +10 below are to take into account the tooltip arrow dimensions
+    const finalTop = top + 10;
+    const finalLeft = isBar ? right - 16 : left - width / 2;
     showTooltip({
-      tooltipTop: top + rect.height / 2,
-      tooltipLeft: left - rect.width / 2,
+      tooltipTop: finalTop,
+      tooltipLeft: finalLeft,
     });
   };
   return (
     <Wrapper>
       <Label>
-        <span>TVL.</span> {current.toFixed(0)} of {max}
-        {description && (
-          <Info onMouseOver={handleMouseOver} onMouseLeave={hideTooltip} />
-        )}
+        <span> UMA’s TVL </span>
+        <Icon
+          onMouseOver={(e) => handleMouseOver(e, false)}
+          onMouseLeave={hideTooltip}
+        />
       </Label>
       <Bar width={totalWidth} height={height}>
-        <Progress width={filledWidth} height={height} />
+        <Progress
+          width={Math.round(filledWidth)}
+          height={height}
+          onMouseOver={(e) => handleMouseOver(e, true)}
+          onMouseLeave={hideTooltip}
+        />
       </Bar>
       {tooltipOpen && (
         <Tooltip top={tooltipTop} left={tooltipLeft}>
-          {description}
+          {descriptionRef.current}
         </Tooltip>
       )}
     </Wrapper>
@@ -67,11 +90,12 @@ const Wrapper = tw.div`
     flex items-center
 `;
 const Label = styled.div`
-  ${tw`flex mr-5`};
+  ${tw`flex mr-5 text-gray`};
   > span {
-    ${tw`text-gray mr-1`}
+    ${tw`mr-1`}
   }
   > svg {
+    ${tw`hover:cursor-pointer`}
     margin-left: 10px;
   }
 `;
@@ -84,6 +108,22 @@ const Bar = styled.div<{ width: number; height: number }>`
 const Progress = tw(Bar)`
     absolute bg-secondary
 `;
-const Info = tw(Icon)`
-  hover:cursor-pointer
-`;
+
+function formatMillions(n: number) {
+  const maximumSignificantDigits = 4;
+  let formattedN;
+  let postfix;
+  // Dealing with Billions
+  if (n >= 1000) {
+    formattedN = n / 1000;
+    postfix = "Billions";
+  } else {
+    formattedN = n;
+    postfix = "Millions";
+  }
+  return `$${Intl.NumberFormat("en-us", {
+    currency: "USD",
+    maximumSignificantDigits,
+    currencyDisplay: "symbol",
+  }).format(formattedN)} ${postfix}`;
+}

@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import { useConnection } from "./useConnection";
+import { ethers } from "ethers";
 import {
   SUPPORTED_NETWORK_IDS,
   contracts,
@@ -26,7 +27,7 @@ export function useClaims() {
     [address, network?.chainId],
     () =>
       getClaims({
-        address: "0x00e4846e2971bb2b29cec7c9efc8fa686ae21342",
+        address: ethers.utils.getAddress(address || ""),
         chainId: network?.chainId as ChainId,
       }),
     {
@@ -53,7 +54,6 @@ async function getClaims({ address: claimerAddress, chainId }: getProofParams) {
   const merkleProofUrl = URLS.merkleProofHelper;
   const headers = {
     "Content-Type": "application/json",
-    Origin: "",
   };
   const response = await fetch(merkleProofUrl, {
     method: "POST",

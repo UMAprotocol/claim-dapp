@@ -11,7 +11,7 @@ const About: React.FC = () => {
         <MainHeading level={3}>About UMA KPI Options</MainHeading>
         <TextWrapper>
           <p>
-            UMA has airdropped a new incentivization mechanism called a Key
+            UMA has airdropped a new incentive mechanism called a Key
             Performance Indicator (KPI) option to a{" "}
             <Link
               href="https://github.com/UMAprotocol/token-distribution/blob/master/outputs/governance_recipients.json"
@@ -19,10 +19,10 @@ const About: React.FC = () => {
               rel="noopener noreferrer"
             >
               curated list of addresses
-            </Link>{" "}
-            in DeFi. The token airdropped is called uTVL-JUN and the value of
-            each token option depends on UMA’s Total Value Locked (TVL), thereby
-            giving every recipient an incentive to grow UMA protocol.
+            </Link>
+            . The token airdropped is called uTVL-JUN and the value of each
+            token option depends on UMA’s Total Value Locked (TVL), thereby
+            giving every recipient an incentive to grow UMA protocol!
           </p>
           <p>
             Compared to a typical airdrop which can be easily dumped, KPI
@@ -30,7 +30,7 @@ const About: React.FC = () => {
             core KPI of the protocol grows.
           </p>
           <p>
-            he Risk Labs foundation has allotted 2,000,000 UMA tokens for this
+            The Risk Labs foundation has allotted 2,000,000 UMA tokens for this
             purpose. uTVL-JUN holders will be able to redeem their token options
             for UMA tokens on July 1, 2021 at 00:00 UTC. uTVL-JUN tokens will
             have a minimum value of 0.1 $UMA each — but if the KPI target is

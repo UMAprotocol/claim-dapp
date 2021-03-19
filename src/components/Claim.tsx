@@ -4,25 +4,31 @@ import tw, { styled } from "twin.macro";
 import Button from "./Button";
 import UnstyledHeading from "./Heading";
 import { ButtonWrapper } from "./Wrappers";
-import { Spinner } from "../assets/icons";
+import Confetto from "./Confetti";
+import Link from "./Link";
+import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
 import { useOptions, usePayouts } from "../hooks";
-import { getOptionsDollarValue } from "../utils";
-
+import { etherscanUrlFromTx } from "../utils";
+import { expiryDate } from "../config";
 type ClaimProps = {
   onCancel?: () => void;
 };
-const expiryDate = "Jun 30 2021";
+
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim: submitClaim, claims, txStatus, error } = useOptions();
+  const { claim: submitClaim, claims, txStatus, tx, error } = useOptions();
   const payouts = usePayouts();
+  const logoRef = React.useRef<SVGSVGElement>(null);
   const claim = claims && claims.length > 0 ? claims[0] : undefined;
-  const claimed = claim?.hasClaimed;
+  const claimed = Boolean(claim?.hasClaimed);
 
   return (
     <Wrapper>
       <Header>
-        <Logo dimmed={!Boolean(claimed)} />
+        <div>
+          <Logo dimmed={!claimed} ref={logoRef} />
+          {claimed && <Confetto anchorRef={logoRef} />}
+        </div>
         <Heading level={1}>
           {claimed
             ? "Your options have been claimed."
@@ -73,7 +79,16 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
           <Button onClick={onCancel}>Done</Button>
         )}
       </ButtonWrapper>
-      {txStatus === "rejected" && <ErrorMessage>{error}</ErrorMessage>}
+      {tx && tx.hash && (
+        <EtherscanLink
+          href={etherscanUrlFromTx(tx as any)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View on Etherscan <LinkIcon />
+        </EtherscanLink>
+      )}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </Wrapper>
   );
 };
@@ -99,3 +114,7 @@ const Logo = styled(UnstyledLogo)<{ dimmed: boolean }>`
 `;
 const ErrorMessage = tw.span`text-primary mt-3`;
 const LoadingIcon = tw(Spinner)`animate-spin h-5 w-5 ml-3`;
+const EtherscanLink = tw(
+  Link
+)`mt-4 p-2 text-primary text-right hover:underline`;
+const LinkIcon = tw(ExternalLink)`w-3 h-3 inline-block`;

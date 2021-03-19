@@ -4,8 +4,12 @@ import tw, { styled } from "twin.macro";
 import Heading from "./Heading";
 import Button from "./Button";
 import Link from "./Link";
+import MarioCashLogo from "../assets/mario-cash.svg";
+import OpenDAOLogo from "../assets/opendao-logo.png";
+import uStonksLogo from "../assets/ustonks-logo.png";
+import uGasLogo from "../assets/ugas-logo.png";
 
-const defaultProjects = [
+const projects = [
   {
     name: "OpenDAO",
     description: (
@@ -21,33 +25,31 @@ const defaultProjects = [
       </>
     ),
     mintLink: "https://opendao.io/",
+    imgUrl: OpenDAOLogo,
   },
   {
     name: "uGAS - Ethereum Gas Futures",
     description:
       "A synthetic futures contract that settles to the 30-Day Median Ethereum Gas Price. Speculate on Ethereum gas prices with a Long or Short uGAS position. uGAS can be used as a hedge against the cost of gas on the Ethereum blockchain.",
     mintLink: "https://degenerative.finance/",
+    imgUrl: uGasLogo,
   },
   {
     name: "uSTONKS",
     description:
       "A synthetic that tracks the ten most bullish Wall Street Bets stocks and captures the sentiment of the r/WSB community.",
     mintLink: "https://degenerative.finance/",
+    imgUrl: uStonksLogo,
   },
   {
     name: "Mario Cash",
     description: "A Bitcoin Cash synthetic token backed by renBTC.",
     mintLink: "https://mario.cash/",
+    imgUrl: MarioCashLogo,
   },
 ];
 
 const OptionsList: React.FC = () => {
-  const [expanded, setExpanded] = React.useState(false);
-  const numberToShow = 4;
-  const optionsToShow = defaultProjects.slice(
-    0,
-    expanded ? defaultProjects.length : numberToShow
-  );
   return (
     <Wrapper>
       <MainHeading level={3}>Help UMA level up</MainHeading>
@@ -57,18 +59,18 @@ const OptionsList: React.FC = () => {
         below products!
       </About>
       <List>
-        {optionsToShow.map((option) => (
-          <li key={option.name}>
+        {projects.map((project) => (
+          <li key={project.name}>
             <OptionWrapper>
               <Content>
-                <OptionAvatar />
+                <OptionAvatar src={project.imgUrl} />
                 <OptionText>
-                  <Heading level={6}>{option.name}</Heading>
-                  <Description>{option.description}</Description>
+                  <Heading level={6}>{project.name}</Heading>
+                  <Description>{project.description}</Description>
                 </OptionText>
               </Content>
               <Link
-                href={option.mintLink}
+                href={project.mintLink}
                 rel="noopener norefferrer"
                 target="_blank"
               >
@@ -77,17 +79,16 @@ const OptionsList: React.FC = () => {
             </OptionWrapper>
           </li>
         ))}
+        <SeeAllWrapper>
+          <SeeAllButton
+            href="https://umaproject.org/projects.html"
+            target="_blank"
+            rel="noopener norefferrer"
+          >
+            See All Projects
+          </SeeAllButton>
+        </SeeAllWrapper>
       </List>
-      {numberToShow < defaultProjects.length && (
-        <SeeAllButton
-          variant="secondary"
-          onClick={() => {
-            setExpanded(!expanded);
-          }}
-        >
-          {expanded ? "See Less" : "See All Projects"}
-        </SeeAllButton>
-      )}
     </Wrapper>
   );
 };
@@ -106,7 +107,7 @@ const OptionWrapper = styled.div`
 `;
 const Content = tw.div`flex`;
 const OptionText = tw.div`flex flex-col`;
-const OptionAvatar = tw.div`mr-5 bg-primary w-14 h-14 rounded-full`;
+const OptionAvatar = tw.img`mr-5 w-14 h-14 rounded-full`;
 const Description = styled.p`
   ${tw`mt-3 text-lg`};
   max-width: 380px;
@@ -114,7 +115,13 @@ const Description = styled.p`
 const MintButton = styled(Button)`
   padding: 6px 30px;
 `;
-const SeeAllButton = styled(Button)`
+const SeeAllButton = styled(Link)`
+  ${tw`bg-secondary text-black rounded`};
   padding: 15px 46px;
   margin: auto;
+`;
+const SeeAllWrapper = styled.li`
+  display: flex;
+  padding-top: 30px;
+  width: 100%;
 `;

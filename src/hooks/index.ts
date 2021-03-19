@@ -6,4 +6,6 @@ export * from "./useTooltip";
 export * from "./usePrice";
 export * from "./useOptions";
 export * from "./useClaims";
+export * from "./useOptionsSupply";
+export * from "./useTvl";
 export * from "./usePayouts";

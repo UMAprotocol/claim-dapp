@@ -8,7 +8,7 @@ import { contracts } from "../config";
 const EMPTY: unique symbol = Symbol();
 
 type TxStatus = "idle" | "pending" | "resolved" | "rejected";
-
+type Tx = ethers.Transaction;
 type TxAction =
   | {
       type: "set error";
@@ -17,11 +17,16 @@ type TxAction =
   | {
       type: "set transaction status";
       txStatus: TxStatus;
+    }
+  | {
+      type: "set transaction";
+      tx: Tx | null;
     };
 
 type TxState = {
   error: Error | null | string;
   txStatus: TxStatus;
+  tx: Tx | null;
 };
 
 function txReducer(state: TxState, action: TxAction) {
@@ -36,6 +41,12 @@ function txReducer(state: TxState, action: TxAction) {
       return {
         ...state,
         txStatus: action.txStatus,
+      };
+    }
+    case "set transaction": {
+      return {
+        ...state,
+        tx: action.tx,
       };
     }
     default: {
@@ -66,10 +77,18 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
   const [txState, dispatch] = React.useReducer(txReducer, {
     error: null,
     txStatus: "idle",
+    tx: null,
   });
 
+  // reset network state on address, or network change.
+  React.useEffect(() => {
+    dispatch({ type: "set transaction status", txStatus: "idle" });
+    dispatch({ type: "set error", error: null });
+    dispatch({ type: "set transaction", tx: null });
+  }, [address, network, signer]);
+
   const claim = React.useCallback(
-    (claimIdx = 0) => {
+    async (claimIdx = 0) => {
       // check if we can actually claim options for this claimIdx.
       if (!(claims && claims.length > claimIdx && network?.chainId && signer)) {
         if (!(claims && claims.length > claimIdx)) {
@@ -77,7 +96,6 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
             type: "set error",
             error: "There are no options to claim for this address.",
           });
-          dispatch({ type: "set transaction status", txStatus: "rejected" });
         }
         return;
       }
@@ -90,14 +108,16 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
         claimIdx
       ];
       try {
-        merkleDistributor
-          .claim({
-            windowIndex,
-            account: address,
-            accountIndex,
-            amount,
-            merkleProof,
-          })
+        const tx: ethers.ContractTransaction = await merkleDistributor.claim({
+          windowIndex,
+          account: address,
+          accountIndex,
+          amount,
+          merkleProof,
+        });
+        dispatch({ type: "set transaction", tx });
+        dispatch({ type: "set transaction status", txStatus: "pending" });
+        tx.wait()
           .then(() => {
             dispatch({ type: "set transaction status", txStatus: "resolved" });
             refetch();
@@ -105,10 +125,9 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
           .catch(() => {
             dispatch({ type: "set transaction status", txStatus: "rejected" });
           });
-        dispatch({ type: "set transaction status", txStatus: "pending" });
       } catch (error) {
         console.error(error);
-        dispatch({ type: "set error", error });
+        dispatch({ type: "set error", error: error.message });
       }
     },
     [address, claims, network?.chainId, refetch, signer]
