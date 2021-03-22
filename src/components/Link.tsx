@@ -20,8 +20,9 @@ const Link: React.FC<LinkProps> = ({ children, href, ...delegated }) => {
 const Wrapper = styled.a`
   ${tw`no-underline focus:underline`}
   ${TextWrapper} & {
+    ${tw`underline hover:no-underline`};
     box-shadow: 0 0 0 #000;
-    ${tw`transition duration-100`}
+    ${tw`transition duration-300`}
     :hover {
       box-shadow: 0 2px 0 #000;
     }

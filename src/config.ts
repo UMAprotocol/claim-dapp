@@ -53,3 +53,5 @@ export default function config(network: Network | null) {
     },
   };
 }
+
+export const expiryDate = process.env.REACT_APP_EXPIRY_DATE || "Jun 30 2021";

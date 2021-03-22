@@ -3,6 +3,7 @@ import tw, { styled } from "twin.macro";
 
 import UnstyledHeading from "./Heading";
 import { Info as InfoIcon } from "../assets/icons";
+import { useTooltip } from "../hooks";
 
 type TMetric = {
   value: string | number;
@@ -16,7 +17,24 @@ type MetricProps = {
 };
 const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
   const { value, quantifier, description, extendedDescription } = metric;
+  const {
+    tooltipOpen,
+    tooltipTop,
+    tooltipLeft,
+    showTooltip,
+    hideTooltip,
+    TooltipComponent: Tooltip,
+  } = useTooltip();
 
+  const handleMouseOver = (event: React.MouseEvent<SVGElement, MouseEvent>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipTop = window.innerHeight - rect.top + rect.height / 2;
+    const tooltipLeft = rect.left - rect.width / 2;
+    showTooltip({
+      tooltipTop,
+      tooltipLeft,
+    });
+  };
   const Content = big ? (
     <>
       <div>
@@ -32,7 +50,15 @@ const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
         <Quantifier>{quantifier}</Quantifier>
       </Header>
       <Description>
-        {description} {extendedDescription && <InfoIcon />}
+        {description}{" "}
+        {extendedDescription && (
+          <InfoIcon onMouseOver={handleMouseOver} onMouseOut={hideTooltip} />
+        )}
+        {tooltipOpen && (
+          <Tooltip top={tooltipTop} left={tooltipLeft}>
+            {extendedDescription}
+          </Tooltip>
+        )}
       </Description>
     </>
   );
