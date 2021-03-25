@@ -42,7 +42,7 @@ const DateCounterWrapper = styled.div`
 
 type ExpiryProps = {
   expiryDate: Time;
-  description?: string;
+  description?: React.ReactNode;
 };
 
 const Expiry: React.FC<ExpiryProps> = ({ expiryDate, description }) => {

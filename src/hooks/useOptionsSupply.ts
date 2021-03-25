@@ -2,20 +2,13 @@ import { ethers } from "ethers";
 import { useQuery } from "react-query";
 
 import { useConnection } from "./useConnection";
-import { KPIOptionsToken } from "../config";
+import { KPIOptionsToken, infuraId } from "../config";
 
 export function useOptionsSupply() {
   const { provider, network } = useConnection();
-  const fallbackProvider = ethers.providers.getDefaultProvider(
-    network ?? undefined
-  );
-  const { data, isLoading, error } = useQuery<ethers.BigNumber>(
+  const { data, isLoading, error } = useQuery<any>(
     ["kpi options supply", provider, network?.chainId],
-    () =>
-      getOptionsSupply(
-        provider ?? fallbackProvider,
-        (network?.chainId as 1 | 42) ?? 42
-      )
+    () => getOptionsSupply(provider, network)
   );
 
   const format = Intl.NumberFormat("en-US", {
@@ -30,9 +23,14 @@ export function useOptionsSupply() {
 }
 
 async function getOptionsSupply(
-  provider: ethers.providers.BaseProvider,
-  chainId: 1 | 42
+  web3Provider: ethers.providers.Web3Provider | null,
+  network: ethers.providers.Network | null
 ) {
+  const chainId = (network && network.chainId ? network.chainId : 1) as 1 | 42;
+  const provider =
+    web3Provider != null
+      ? web3Provider
+      : new ethers.providers.InfuraProvider(chainId, infuraId);
   const contract = new ethers.Contract(
     KPIOptionsToken.address(chainId),
     KPIOptionsToken.abi,

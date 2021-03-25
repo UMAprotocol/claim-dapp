@@ -56,7 +56,8 @@ export default function config(network: Network | null) {
   };
 }
 
-export const expiryDate = process.env.REACT_APP_EXPIRY_DATE || "June 30 2021";
+export const expiryDate =
+  process.env.REACT_APP_EXPIRY_DATE || "Wed Jun 30 2021 22:00:00 GMT";
 export const SUPPORTED_NETWORK_IDS = [1, 42] as const;
 
 const getMerkleDistributorAddress = (chainId: 1 | 42) =>

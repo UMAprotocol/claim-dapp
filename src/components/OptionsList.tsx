@@ -20,7 +20,7 @@ const projects = [
           target="_blank"
           rel="noopener noreferrer"
         >
-          yield dollars
+          yield dollars.
         </Link>
       </>
     ),

@@ -36,7 +36,7 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
         </Heading>
       </Header>
       <Content>
-        <OptionName>uTVL-Jun 30</OptionName>
+        <OptionName>uTVL-0621</OptionName>
         <Metrics>
           <div>
             <Label>Quantity</Label>

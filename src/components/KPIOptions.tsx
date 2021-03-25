@@ -70,7 +70,7 @@ const KPIOptions: React.FC = () => {
       <MainHeading level={3}>Your KPI Options</MainHeading>
       <Content>
         <ContentHeader>
-          <OptionName>uTVL-Jun 30</OptionName>
+          <OptionName>uTVL-0621</OptionName>
           <ClaimButton onClick={handleClick} disabled={!isConnected}>
             Claim Options
           </ClaimButton>
@@ -92,7 +92,12 @@ const KPIOptions: React.FC = () => {
         </ContentMain>
         <Expiry
           expiryDate={expiryDate}
-          description="Redeem uTVL-JUN tokens for UMA tokens at expiry"
+          description={
+            <p>
+              Redeem <strong>uTVL-JUN</strong> tokens for <strong>UMA</strong>{" "}
+              tokens at expiry
+            </p>
+          }
         />
       </Content>
       <Modal isOpen={isOpen} onClose={close} ref={modalRef}>
