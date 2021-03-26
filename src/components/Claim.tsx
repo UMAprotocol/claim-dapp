@@ -4,20 +4,31 @@ import tw, { styled } from "twin.macro";
 import Button from "./Button";
 import UnstyledHeading from "./Heading";
 import { ButtonWrapper } from "./Wrappers";
+import Confetto from "./Confetti";
+import Link from "./Link";
+import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
-import { useClaim } from "../hooks";
-
+import { useOptionsClaim, usePayouts } from "../hooks";
+import { etherscanUrlFromTx } from "../utils";
+import { expiryDate } from "../config";
 type ClaimProps = {
   onCancel?: () => void;
 };
 
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim, claimed } = useClaim();
+  const { claim: submitClaim, claims, txStatus, tx, error } = useOptionsClaim();
+  const payouts = usePayouts();
+  const logoRef = React.useRef<SVGSVGElement>(null);
+  const claim = claims && claims.length > 0 ? claims[0] : undefined;
+  const claimed = Boolean(claim?.hasClaimed);
 
   return (
     <Wrapper>
       <Header>
-        <Logo dimmed={!claimed} />
+        <div>
+          <Logo dimmed={!claimed} ref={logoRef} />
+          {claimed && <Confetto anchorRef={logoRef} />}
+        </div>
         <Heading level={1}>
           {claimed
             ? "Your options have been claimed."
@@ -25,27 +36,27 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
         </Heading>
       </Header>
       <Content>
-        <OptionName>uTVL-Jun 30</OptionName>
+        <OptionName>uTVL-0621</OptionName>
         <Metrics>
           <div>
             <Label>Quantity</Label>
-            <Value>100</Value>
+            <Value>{payouts?.quantity ?? 0}</Value>
           </div>
           <div>
             <Label>Expiry</Label>
-            <Value>June 30, 2021</Value>
+            <Value>{expiryDate}</Value>
           </div>
           <div>
             <Label>Current Payout</Label>
-            <Value>$1000</Value>
+            <Value>{payouts?.currentPayout ?? "-"}</Value>
           </div>
           <div>
             <Label>Min. Payout</Label>
-            <Value>$2368</Value>
+            <Value>{payouts?.minPayout ?? "-"}</Value>
           </div>
           <div>
             <Label>Max. Payout</Label>
-            <Value>$74,360</Value>
+            <Value>{payouts?.maxPayout ?? "-"}</Value>
           </div>
         </Metrics>
       </Content>
@@ -55,12 +66,29 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
             <Button variant="secondary" onClick={onCancel}>
               Not Yet
             </Button>
-            <Button onClick={claim}>I'm Ready</Button>
+
+            {txStatus === "pending" ? (
+              <Button>
+                Claiming... <LoadingIcon />
+              </Button>
+            ) : (
+              <Button onClick={() => submitClaim()}>I'm Ready</Button>
+            )}
           </>
         ) : (
           <Button onClick={onCancel}>Done</Button>
         )}
       </ButtonWrapper>
+      {tx && tx.hash && (
+        <EtherscanLink
+          href={etherscanUrlFromTx(tx as any)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View on Etherscan <LinkIcon />
+        </EtherscanLink>
+      )}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </Wrapper>
   );
 };
@@ -84,3 +112,9 @@ const Logo = styled(UnstyledLogo)<{ dimmed: boolean }>`
     fill: ${({ dimmed }) => (dimmed ? "#F29797" : "#FF4A4A")};
   }
 `;
+const ErrorMessage = tw.span`text-primary mt-3`;
+const LoadingIcon = tw(Spinner)`animate-spin h-5 w-5 ml-3`;
+const EtherscanLink = tw(
+  Link
+)`mt-4 p-2 text-primary text-right hover:underline`;
+const LinkIcon = tw(ExternalLink)`w-3 h-3 inline-block`;

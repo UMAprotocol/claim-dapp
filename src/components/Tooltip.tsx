@@ -9,7 +9,8 @@ export type TooltipProps = {
   position?: "left" | "right";
 };
 const Wrapper = styled.div<Omit<TooltipProps, "position">>`
-  ${tw`pointer-events-none absolute rounded-sm shadow-md p-3 bg-white text-black text-sm max-w-xs max-h-20 `};
+  ${tw`pointer-events-none absolute rounded-sm shadow-md p-3 bg-white text-black text-sm max-w-xs`};
+  width: fit-content;
   bottom: ${({ top, offsetTop }) =>
     top == null || offsetTop == null ? top : top + offsetTop}px;
   left: ${({ left, offsetLeft }) =>

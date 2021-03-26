@@ -1,7 +1,18 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal } from "../hooks";
+import {
+  useConnection,
+  useModal,
+  useOptionsSupply,
+  useTvl,
+  useOptionsClaim,
+} from "../hooks";
+import {
+  parseUSLocaleNumber,
+  formatUSLocaleNumber,
+  updateDefaultObject,
+} from "../utils";
 import Button from "./Button";
 import { ReactComponent as KPILogo } from "../assets/kpi-frame.svg";
 import { Settings as SettingsIcon } from "../assets/icons";
@@ -11,53 +22,74 @@ import Modal from "./Modal";
 import Settings from "./Settings";
 import Claim from "./Claim";
 import Metrics from "./Metrics";
-
-const metrics = [
-  {
-    value: "$105.3",
+import Link from "./Link";
+import { optionsName } from "../config";
+const MoreInfoLink = tw(Link)`
+  text-xl no-underline
+`;
+const defaultMetrics = {
+  tvl: {
+    value: "$0",
     quantifier: "Million",
-    description: "UMA’s Total Value Locked (TVL)",
+    description: (
+      <div>
+        <div>UMA’s Total Value Locked (TVL)</div>
+        <MoreInfoLink
+          href="https://monitor.simpleid.xyz/d/x4CYPILGk/uma?orgId=1"
+          target="_blank"
+          rel="noopener norefferrer"
+        >
+          More Info
+        </MoreInfoLink>
+      </div>
+    ),
   },
-  {
+  maxReward: {
     value: "2,000,000",
     quantifier: "UMA",
     description: "Maximum reward",
     extendedDescription: (
       <p>
-        The maximum amount of UMA tokens that will be redeemable by uTVL-JUN
-        token holders If UMA’s TVL reaches $2 billion
+        The <strong>maximum</strong> amount of <strong>UMA</strong> tokens that
+        will be redeemable by <strong>{optionsName}</strong> token holders If
+        UMA’s TVL reaches <strong>$2 billion</strong>
       </p>
     ),
   },
-  {
+  currentReward: {
     value: "325,000",
     quantifier: "UMA",
     description: "Current expected reward",
     extendedDescription: (
       <p>
-        The expected amount of UMA tokens that will be redeemable by uTVL-JUN
-        token holders based on UMA’s current TVL
+        The <strong>expected</strong> amount of <strong>UMA</strong> tokens that
+        will be redeemable by <strong>{optionsName}</strong> token holders based
+        on <strong>UMA’s current TVL</strong>
       </p>
     ),
   },
-  {
+  supply: {
     value: "100,000",
     description: "KPI options in circulation",
     extendedDescription: (
-      <p>The total amount of uTVL-JUN options in circulation</p>
-    ),
-  },
-  {
-    value: "3.25x",
-    description: "Current option multiplier",
-    extendedDescription: (
       <p>
-        Used to calculate the amount of UMA each uTVL-JUN option is worth; the
-        higher UMA’s TVL, the higher the multiplier
+        The total amount of <strong>{optionsName}</strong> options in{" "}
+        <strong> circulation</strong>
       </p>
     ),
   },
-];
+  multiplier: {
+    value: "1x",
+    description: "Current option multiplier",
+    extendedDescription: (
+      <p>
+        Used to calculate the amount of <strong>UMA</strong> each{" "}
+        <strong>{optionsName}</strong> option is worth; the higher{" "}
+        <strong>UMA’s TVL</strong>, the higher the <strong>multiplier</strong>
+      </p>
+    ),
+  },
+};
 
 const Hero: React.FC = () => {
   const { isConnected, connect } = useConnection();
@@ -80,7 +112,44 @@ const Hero: React.FC = () => {
     open: openSettings,
     close: closeSettings,
   } = useModal();
+  const { claims } = useOptionsClaim();
+  const claim = claims && claims.length > 0 ? claims[0] : undefined;
+  const claimed = Boolean(claim?.hasClaimed);
+  const disableClaim = claimed && isConnected;
 
+  const { data: tvlData, maxPayout, currentPayout } = useTvl();
+  const { supply } = useOptionsSupply();
+  const [metrics, setMetrics] = React.useState(Object.values(defaultMetrics));
+
+  const currentTvl = tvlData?.currentTvl;
+  React.useEffect(() => {
+    const tvlInMilions = currentTvl
+      ? formatUSLocaleNumber(Number(currentTvl) / 10 ** 6, 1, "USD")
+      : undefined;
+
+    const maxReward = supply
+      ? formatUSLocaleNumber(parseUSLocaleNumber(supply) * maxPayout, 0)
+      : undefined;
+    const currentReward = supply
+      ? formatUSLocaleNumber(
+          parseUSLocaleNumber(supply) * Number(currentPayout),
+          0
+        )
+      : undefined;
+
+    const formattedSupply = formatUSLocaleNumber(Number(supply) || 100000, 0);
+
+    const multiplier = `${currentPayout}x`;
+    const freshMetrics = {
+      tvl: { value: tvlInMilions },
+      supply: { value: formattedSupply },
+      maxReward: { value: maxReward },
+      currentReward: { value: currentReward },
+      multiplier: { value: multiplier },
+    };
+    const newMetrics = updateDefaultObject(defaultMetrics, freshMetrics) as any;
+    setMetrics(Object.values(newMetrics));
+  }, [currentPayout, currentTvl, maxPayout, supply]);
   return (
     <MaxWidthWrapper>
       <Wrapper>
@@ -93,7 +162,7 @@ const Hero: React.FC = () => {
             The more UMA's TVL grows the more the KPI Options are worth!
           </Subtitle>
           <ButtonsWrapper>
-            <StyledButton onClick={handleCTAClick}>
+            <StyledButton onClick={handleCTAClick} disabled={disableClaim}>
               {isConnected
                 ? "Claim Options"
                 : "Connect Wallet to Claim Options"}
@@ -109,7 +178,7 @@ const Hero: React.FC = () => {
             isOpen={isSettingsOpen}
             onClose={closeSettings}
           >
-            <Settings onCancel={closeSettings} onSave={closeSettings} />
+            <Settings onComplete={closeSettings} />
           </Modal>
         </CTAWrapper>
         <Metrics metrics={metrics} />
@@ -138,6 +207,7 @@ const ButtonsWrapper = styled.div`
 `;
 const StyledButton = styled(Button)`
   padding: 6px 30px;
+  ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
 
 export default Hero;

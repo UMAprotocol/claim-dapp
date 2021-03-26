@@ -4,6 +4,13 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    min-height: 100%;
+  }
+  body {
+    min-height: 100%;
+  }
   @font-face {
     font-family: Halyard Display;
     font-weight: 400;

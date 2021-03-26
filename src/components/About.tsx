@@ -3,6 +3,7 @@ import tw, { styled } from "twin.macro";
 import { MaxWidthWrapper, TextWrapper } from "./Wrappers";
 import Heading from "./Heading";
 import Link from "./Link";
+import { expiryDate, optionsName } from "../config";
 
 const About: React.FC = () => {
   return (
@@ -11,7 +12,7 @@ const About: React.FC = () => {
         <MainHeading level={3}>About UMA KPI Options</MainHeading>
         <TextWrapper>
           <p>
-            UMA has airdropped a new incentivization mechanism called a Key
+            UMA has airdropped a new incentive mechanism called a Key
             Performance Indicator (KPI) option to a{" "}
             <Link
               href="https://github.com/UMAprotocol/token-distribution/blob/master/outputs/governance_recipients.json"
@@ -19,10 +20,12 @@ const About: React.FC = () => {
               rel="noopener noreferrer"
             >
               curated list of addresses
-            </Link>{" "}
-            in DeFi. The token airdropped is called uTVL-JUN and the value of
-            each token option depends on UMA’s Total Value Locked (TVL), thereby
-            giving every recipient an incentive to grow UMA protocol.
+            </Link>
+            . The token airdropped is called {optionsName} and the value of each
+            token option depends on UMA’s Total Value Locked (TVL), thereby
+            giving every recipient an incentive to grow UMA protocol! <br /> The
+            0621 in the token name represents the month and year the option(s)
+            will expire (June 2021).
           </p>
           <p>
             Compared to a typical airdrop which can be easily dumped, KPI
@@ -30,11 +33,12 @@ const About: React.FC = () => {
             core KPI of the protocol grows.
           </p>
           <p>
-            he Risk Labs foundation has allotted 2,000,000 UMA tokens for this
-            purpose. uTVL-JUN holders will be able to redeem their token options
-            for UMA tokens on July 1, 2021 at 00:00 UTC. uTVL-JUN tokens will
-            have a minimum value of 0.1 $UMA each — but if the KPI target is
-            hit, they will pay out 2 $UMA. View{" "}
+            The Risk Labs foundation has allotted 2,000,000 UMA tokens for this
+            purpose. {optionsName} holders will be able to redeem their token
+            options for UMA tokens on {expiryDate}. {optionsName}
+            tokens will have a minimum value of 0.1 $UMA each — but if the max
+            KPI target is hit (i.e., $2 billion) each option will pay out 2
+            $UMA. View here to learn more about KPI options{" "}
             <Link
               href="https://medium.com/uma-project/uma-kpi-options-and-airdrop-bae86be16ce4"
               target="_blank"
@@ -48,9 +52,8 @@ const About: React.FC = () => {
               rel="noopener norefferrer"
               target="_blank"
             >
-              airdrop
+              airdrop details.
             </Link>{" "}
-            details.
           </p>
         </TextWrapper>
       </Wrapper>

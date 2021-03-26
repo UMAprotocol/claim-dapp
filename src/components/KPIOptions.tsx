@@ -1,7 +1,14 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal } from "../hooks";
+import {
+  useConnection,
+  useModal,
+  usePayouts,
+  useTvl,
+  useOptionsClaim,
+} from "../hooks";
+
 import Heading from "./Heading";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
@@ -9,23 +16,25 @@ import Modal from "./Modal";
 import Claim from "./Claim";
 import Expiry from "./Expiry";
 import InfoList, { InfoProps } from "./InfoList";
-import { expiryDate } from "../config";
+import Reason from "./Reason";
+import { expiryDate, optionsName } from "../config";
 
 const defaultInfos: Record<string, InfoProps> = {
-  quantitity: {
+  quantity: {
     label: "Quantity",
-    value: "Claim to reveal",
+    value: "-",
   },
   expiry: {
     label: "Expiry",
-    value: "December 30, 2021",
+    value: expiryDate,
   },
   minPayout: {
     label: "Min. Payout",
     value: "-",
     description: (
       <span>
-        The minimum amount of UMA all of your uTVL-JUN options will be worth
+        The <strong>minimum</strong> amount of UMA all of your {optionsName}{" "}
+        options will be worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -34,7 +43,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The current amount of UMA all of your uTVL-JUN options are worth
+        The <strong>current</strong> amount of UMA all of your {optionsName}{" "}
+        options are worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -43,8 +53,9 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The maximum amount of UMA all of your uTVL-JUN options can be worth if
-        UMA’s TVL reaches $2 billion
+        The <strong>maximum</strong> amount of UMA all of your {optionsName}{" "}
+        options can be worth if UMA’s TVL reaches $2 billion{" "}
+        <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -52,27 +63,57 @@ const defaultInfos: Record<string, InfoProps> = {
 const KPIOptions: React.FC = () => {
   const { isConnected } = useConnection();
   const { isOpen, open, close, modalRef } = useModal();
+  const { data: tvlData } = useTvl();
+
+  const { metaData, ...values } = usePayouts();
+
+  const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
+  const { claims } = useOptionsClaim();
+  const claim = claims && claims.length > 0 ? claims[0] : undefined;
+  const claimed = Boolean(claim?.hasClaimed);
+  const disableClaim = claimed && isConnected;
   const handleClick = React.useCallback(() => {
     open();
   }, [open]);
+  const tvl = tvlData?.currentTvl;
 
   return (
     <Wrapper>
       <MainHeading level={3}>Your KPI Options</MainHeading>
       <Content>
         <ContentHeader>
-          <OptionName>uTVL-Jun 30</OptionName>
-          <ClaimButton onClick={handleClick} disabled={!isConnected}>
-            {isConnected ? "Claim Options" : "Redeem Options"}
+          <OptionName>uTVL-0621</OptionName>
+          <ClaimButton
+            onClick={handleClick}
+            disabled={!isConnected || disableClaim}
+          >
+            Claim Options
           </ClaimButton>
         </ContentHeader>
         <ContentMain>
-          <ProgressBar max={20} current={3} description="UMA’s current TVL" />
-          <InfoList infos={Object.values(defaultInfos)} />
+          <ProgressBar
+            max={2000}
+            current={Number(tvl ?? 0) / 10 ** 6}
+            description={
+              <p>
+                Track <strong>UMA’s progress</strong> towards reaching{" "}
+                <strong>$2 billion!</strong> If UMA’s TVL reaches $2 billion,{" "}
+                <strong>{optionsName}</strong> token holders receive the{" "}
+                <strong>max</strong> payout at expiry!
+              </p>
+            }
+          />
+          <InfoList infos={Object.values(infos)} />
+          <Reason reasons={metaData} />
         </ContentMain>
         <Expiry
           expiryDate={expiryDate}
-          description="Redeem uTVL-JUN tokens for UMA tokens at expiry"
+          description={
+            <p>
+              Redeem <strong>{optionsName}</strong> tokens for{" "}
+              <strong>UMA</strong> tokens at expiry
+            </p>
+          }
         />
       </Content>
       <Modal isOpen={isOpen} onClose={close} ref={modalRef}>
@@ -101,3 +142,12 @@ const ContentHeader = tw.div`
     flex justify-between items-center bg-gray-darkest p-5
 `;
 const ContentMain = tw.div`p-5`;
+
+function updateInfos(values: { [key: string]: unknown } | undefined) {
+  return values
+    ? Object.keys(defaultInfos).reduce((obj, key) => {
+        const value = values[key] || defaultInfos[key].value;
+        return { ...obj, [key]: { ...defaultInfos[key], value } };
+      }, {})
+    : defaultInfos;
+}

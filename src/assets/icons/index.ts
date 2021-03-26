@@ -7,3 +7,5 @@ export { ReactComponent as ArrowLeft } from "./arrow-left.svg";
 export { ReactComponent as Info } from "./info.svg";
 export { ReactComponent as Settings } from "./settings.svg";
 export { ReactComponent as Times } from "./times.svg";
+export { ReactComponent as Spinner } from "./spinner.svg";
+export { ReactComponent as ExternalLink } from "./external-link.svg";

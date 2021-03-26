@@ -1,7 +1,7 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { TextWrapper } from "./Wrappers";
+import { AccentSection } from "./Section";
 import { FooterWrapper } from "./Footer";
 
 type LinkProps = {
@@ -19,10 +19,10 @@ const Link: React.FC<LinkProps> = ({ children, href, ...delegated }) => {
 
 const Wrapper = styled.a`
   ${tw`no-underline focus:underline`}
-  ${TextWrapper} & {
+  ${AccentSection} & {
     ${tw`underline hover:no-underline`};
     box-shadow: 0 0 0 #000;
-    ${tw`transition duration-300`}
+    ${tw`transition duration-100`}
     :hover {
       box-shadow: 0 2px 0 #000;
     }
