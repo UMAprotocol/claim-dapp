@@ -6,17 +6,13 @@ import { KPIOptionsToken, infuraId } from "../config";
 
 export function useOptionsSupply() {
   const { provider, network } = useConnection();
-  const { data, isLoading, error } = useQuery<any>(
+  const { data, isLoading, error } = useQuery<ethers.BigNumber>(
     ["kpi options supply", provider, network?.chainId],
     () => getOptionsSupply(provider, network)
   );
 
-  const format = Intl.NumberFormat("en-US", {
-    maximumSignificantDigits: 1,
-  }).format;
-
   return {
-    supply: data ? format(+ethers.utils.formatEther(data)) : undefined,
+    supply: data ? ethers.utils.formatEther(data) : undefined,
     isLoading,
     error,
   };

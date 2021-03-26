@@ -8,6 +8,7 @@ import MarioCashLogo from "../assets/mario-cash.svg";
 import OpenDAOLogo from "../assets/opendao-logo.png";
 import uStonksLogo from "../assets/ustonks-logo.png";
 import uGasLogo from "../assets/ugas-logo.png";
+import { optionsName } from "../config";
 
 const projects = [
   {
@@ -55,8 +56,8 @@ const OptionsList: React.FC = () => {
       <MainHeading level={3}>Help UMA level up</MainHeading>
       <About>
         The more synthetic tokens you mint, the more UMA’s TVL will grow and the
-        more uTVL-JUN options will be worth! Grow UMA’s TVL by using any of the
-        below products!
+        more {optionsName} options will be worth! Grow UMA’s TVL by using any of
+        the below products!
       </About>
       <List>
         {projects.map((project) => (

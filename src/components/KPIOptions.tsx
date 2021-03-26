@@ -6,7 +6,7 @@ import {
   useModal,
   usePayouts,
   useTvl,
-  useOptions,
+  useOptionsClaim,
 } from "../hooks";
 
 import Heading from "./Heading";
@@ -16,7 +16,8 @@ import Modal from "./Modal";
 import Claim from "./Claim";
 import Expiry from "./Expiry";
 import InfoList, { InfoProps } from "./InfoList";
-import { expiryDate } from "../config";
+import Reason from "./Reason";
+import { expiryDate, optionsName } from "../config";
 
 const defaultInfos: Record<string, InfoProps> = {
   quantity: {
@@ -32,8 +33,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The <strong>minimum</strong> amount of UMA all of your uTVL-JUN options
-        will be worth <strong>at the current UMA price</strong>
+        The <strong>minimum</strong> amount of UMA all of your {optionsName}{" "}
+        options will be worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -42,8 +43,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The <strong>current</strong> amount of UMA all of your uTVL-JUN options
-        are worth <strong>at the current UMA price</strong>
+        The <strong>current</strong> amount of UMA all of your {optionsName}{" "}
+        options are worth <strong>at the current UMA price</strong>
       </span>
     ),
   },
@@ -52,8 +53,8 @@ const defaultInfos: Record<string, InfoProps> = {
     value: "-",
     description: (
       <span>
-        The <strong>maximum</strong> amount of UMA all of your uTVL-JUN options
-        can be worth if UMA’s TVL reaches $2 billion{" "}
+        The <strong>maximum</strong> amount of UMA all of your {optionsName}{" "}
+        options can be worth if UMA’s TVL reaches $2 billion{" "}
         <strong>at the current UMA price</strong>
       </span>
     ),
@@ -64,10 +65,10 @@ const KPIOptions: React.FC = () => {
   const { isOpen, open, close, modalRef } = useModal();
   const { data: tvlData } = useTvl();
 
-  const values = usePayouts();
+  const { metaData, ...values } = usePayouts();
 
-  const infos = React.useMemo(() => updateInfos(values), [values]);
-  const { claims } = useOptions();
+  const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
+  const { claims } = useOptionsClaim();
   const claim = claims && claims.length > 0 ? claims[0] : undefined;
   const claimed = Boolean(claim?.hasClaimed);
   const disableClaim = claimed && isConnected;
@@ -92,24 +93,25 @@ const KPIOptions: React.FC = () => {
         <ContentMain>
           <ProgressBar
             max={2000}
-            current={Number(tvl ?? 0.15 * 10 ** 9) / 10 ** 6}
+            current={Number(tvl ?? 0) / 10 ** 6}
             description={
               <p>
                 Track <strong>UMA’s progress</strong> towards reaching{" "}
                 <strong>$2 billion!</strong> If UMA’s TVL reaches $2 billion,{" "}
-                <strong>uTVL-JUN</strong> token holders receive the{" "}
+                <strong>{optionsName}</strong> token holders receive the{" "}
                 <strong>max</strong> payout at expiry!
               </p>
             }
           />
           <InfoList infos={Object.values(infos)} />
+          <Reason reasons={metaData} />
         </ContentMain>
         <Expiry
           expiryDate={expiryDate}
           description={
             <p>
-              Redeem <strong>uTVL-JUN</strong> tokens for <strong>UMA</strong>{" "}
-              tokens at expiry
+              Redeem <strong>{optionsName}</strong> tokens for{" "}
+              <strong>UMA</strong> tokens at expiry
             </p>
           }
         />

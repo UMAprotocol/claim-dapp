@@ -20,8 +20,8 @@ const DateCounter: React.FC<{ date: Time }> = ({ date }) => {
       <DateCounterLabels>
         <div>days</div>
         <div>hours</div>
-        <div>min.</div>
-        <div>sec.</div>
+        <div>minutes</div>
+        <div>seconds</div>
       </DateCounterLabels>
     </DateCounterWrapper>
   );

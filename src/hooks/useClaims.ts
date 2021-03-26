@@ -11,9 +11,7 @@ import {
 export type Claim = {
   amount: string;
   accountIndex: number;
-  metaData: {
-    reason: string[];
-  };
+  metaData: string[];
   windowIndex: number;
   proof: string[];
   ipfsHash: string;

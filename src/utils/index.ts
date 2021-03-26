@@ -51,8 +51,12 @@ export function parseUSLocaleNumber(n: string | undefined) {
   return parsed;
 }
 
-export function formatUSLocaleNumber(n: number, digits = 1, currency = false) {
-  const format = Intl.NumberFormat("en-US").format;
+export function formatUSLocaleNumber(n: number, digits = 1, currency?: string) {
+  const format = Intl.NumberFormat("en-US", {
+    style: currency ? "currency" : "decimal",
+    currency,
+    maximumFractionDigits: digits,
+  }).format;
   return format(n);
 }
 

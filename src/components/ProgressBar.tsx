@@ -1,7 +1,7 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 import { useProgress, useTooltip } from "../hooks";
-import { getPageCoords } from "../utils";
+import { formatUSLocaleNumber, getPageCoords } from "../utils";
 import { Info as Icon } from "../assets/icons";
 
 type ProgressBarProps = {
@@ -110,7 +110,6 @@ const Progress = tw(Bar)`
 `;
 
 function formatMillions(n: number) {
-  const maximumSignificantDigits = 4;
   let formattedN;
   let postfix;
   // Dealing with Billions
@@ -119,11 +118,7 @@ function formatMillions(n: number) {
     postfix = "Billions";
   } else {
     formattedN = n;
-    postfix = "Millions";
+    postfix = "Million";
   }
-  return `$${Intl.NumberFormat("en-us", {
-    currency: "USD",
-    maximumSignificantDigits,
-    currencyDisplay: "symbol",
-  }).format(formattedN)} ${postfix}`;
+  return `${formatUSLocaleNumber(formattedN, 0, "USD")} ${postfix}`;
 }

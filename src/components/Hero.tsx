@@ -6,7 +6,7 @@ import {
   useModal,
   useOptionsSupply,
   useTvl,
-  useOptions,
+  useOptionsClaim,
 } from "../hooks";
 import {
   parseUSLocaleNumber,
@@ -23,13 +23,13 @@ import Settings from "./Settings";
 import Claim from "./Claim";
 import Metrics from "./Metrics";
 import Link from "./Link";
-
+import { optionsName } from "../config";
 const MoreInfoLink = tw(Link)`
   text-xl no-underline
 `;
 const defaultMetrics = {
   tvl: {
-    value: "$105.3",
+    value: "$0",
     quantifier: "Million",
     description: (
       <div>
@@ -50,9 +50,9 @@ const defaultMetrics = {
     description: "Maximum reward",
     extendedDescription: (
       <p>
-        The <strong>maximum</strong> amount of UMA tokens that will be
-        redeemable by uTVL-JUN token holders If UMA’s TVL reaches{" "}
-        <strong>$2 billion</strong>
+        The <strong>maximum</strong> amount of <strong>UMA</strong> tokens that
+        will be redeemable by <strong>{optionsName}</strong> token holders If
+        UMA’s TVL reaches <strong>$2 billion</strong>
       </p>
     ),
   },
@@ -62,9 +62,9 @@ const defaultMetrics = {
     description: "Current expected reward",
     extendedDescription: (
       <p>
-        The <strong>expected</strong> amount of UMA tokens that will be
-        redeemable by uTVL-JUN token holders based on{" "}
-        <strong>UMA’s current TVL</strong>
+        The <strong>expected</strong> amount of <strong>UMA</strong> tokens that
+        will be redeemable by <strong>{optionsName}</strong> token holders based
+        on <strong>UMA’s current TVL</strong>
       </p>
     ),
   },
@@ -73,7 +73,8 @@ const defaultMetrics = {
     description: "KPI options in circulation",
     extendedDescription: (
       <p>
-        The total amount of <strong>uTVL-JUN</strong> options in circulation
+        The total amount of <strong>{optionsName}</strong> options in{" "}
+        <strong> circulation</strong>
       </p>
     ),
   },
@@ -82,9 +83,9 @@ const defaultMetrics = {
     description: "Current option multiplier",
     extendedDescription: (
       <p>
-        Used to calculate the amount of UMA each{" "}
-        <strong>uTVL-JUN option</strong> is worth; the higher UMA’s TVL,{" "}
-        <strong>the higher the multiplier</strong>
+        Used to calculate the amount of <strong>UMA</strong> each{" "}
+        <strong>{optionsName}</strong> option is worth; the higher{" "}
+        <strong>UMA’s TVL</strong>, the higher the <strong>multiplier</strong>
       </p>
     ),
   },
@@ -111,7 +112,7 @@ const Hero: React.FC = () => {
     open: openSettings,
     close: closeSettings,
   } = useModal();
-  const { claims } = useOptions();
+  const { claims } = useOptionsClaim();
   const claim = claims && claims.length > 0 ? claims[0] : undefined;
   const claimed = Boolean(claim?.hasClaimed);
   const disableClaim = claimed && isConnected;
@@ -123,22 +124,25 @@ const Hero: React.FC = () => {
   const currentTvl = tvlData?.currentTvl;
   React.useEffect(() => {
     const tvlInMilions = currentTvl
-      ? (Number(currentTvl) / 10 ** 6).toFixed(1)
+      ? formatUSLocaleNumber(Number(currentTvl) / 10 ** 6, 1, "USD")
       : undefined;
 
     const maxReward = supply
-      ? formatUSLocaleNumber(parseUSLocaleNumber(supply) * maxPayout)
+      ? formatUSLocaleNumber(parseUSLocaleNumber(supply) * maxPayout, 0)
       : undefined;
     const currentReward = supply
       ? formatUSLocaleNumber(
-          parseUSLocaleNumber(supply) * Number(currentPayout)
+          parseUSLocaleNumber(supply) * Number(currentPayout),
+          0
         )
       : undefined;
+
+    const formattedSupply = formatUSLocaleNumber(Number(supply) || 100000, 0);
 
     const multiplier = `${currentPayout}x`;
     const freshMetrics = {
       tvl: { value: tvlInMilions },
-      supply: { value: supply },
+      supply: { value: formattedSupply },
       maxReward: { value: maxReward },
       currentReward: { value: currentReward },
       multiplier: { value: multiplier },

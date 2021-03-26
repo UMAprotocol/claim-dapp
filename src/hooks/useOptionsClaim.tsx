@@ -129,7 +129,6 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
             dispatch({ type: "set transaction status", txStatus: "rejected" });
           });
       } catch (error) {
-        console.error(error);
         dispatch({ type: "set error", error: error.message });
       }
     },
@@ -144,7 +143,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
   );
 };
 
-export function useOptions() {
+export function useOptionsClaim() {
   const context = React.useContext(OptionsContext);
   if (context === EMPTY) {
     throw new Error("UseOptions must be used within an OptionsProvider.");

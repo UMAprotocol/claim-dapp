@@ -8,7 +8,7 @@ import Confetto from "./Confetti";
 import Link from "./Link";
 import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
-import { useOptions, usePayouts } from "../hooks";
+import { useOptionsClaim, usePayouts } from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
 import { expiryDate } from "../config";
 type ClaimProps = {
@@ -16,7 +16,7 @@ type ClaimProps = {
 };
 
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim: submitClaim, claims, txStatus, tx, error } = useOptions();
+  const { claim: submitClaim, claims, txStatus, tx, error } = useOptionsClaim();
   const payouts = usePayouts();
   const logoRef = React.useRef<SVGSVGElement>(null);
   const claim = claims && claims.length > 0 ? claims[0] : undefined;
