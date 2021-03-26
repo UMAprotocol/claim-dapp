@@ -99,6 +99,8 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
         }
         return;
       }
+      // reset any erros we might have had previously
+      dispatch({ type: "set error", error: null });
       const merkleDistributor = new ethers.Contract(
         contracts.getMerkleDistributorAddress(network?.chainId as 1 | 42),
         contracts.merkleDistributorABI,
@@ -117,6 +119,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
         });
         dispatch({ type: "set transaction", tx });
         dispatch({ type: "set transaction status", txStatus: "pending" });
+
         tx.wait()
           .then(() => {
             dispatch({ type: "set transaction status", txStatus: "resolved" });

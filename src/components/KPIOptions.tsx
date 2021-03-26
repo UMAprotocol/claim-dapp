@@ -1,7 +1,13 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal, usePayouts, useTvl } from "../hooks";
+import {
+  useConnection,
+  useModal,
+  usePayouts,
+  useTvl,
+  useOptions,
+} from "../hooks";
 
 import Heading from "./Heading";
 import Button from "./Button";
@@ -57,13 +63,18 @@ const KPIOptions: React.FC = () => {
   const { isConnected } = useConnection();
   const { isOpen, open, close, modalRef } = useModal();
   const { data: tvlData } = useTvl();
+
   const values = usePayouts();
 
-  const tvl = tvlData?.currentTvl;
   const infos = React.useMemo(() => updateInfos(values), [values]);
+  const { claims } = useOptions();
+  const claim = claims && claims.length > 0 ? claims[0] : undefined;
+  const claimed = Boolean(claim?.hasClaimed);
+  const disableClaim = claimed && isConnected;
   const handleClick = React.useCallback(() => {
     open();
   }, [open]);
+  const tvl = tvlData?.currentTvl;
 
   return (
     <Wrapper>
@@ -71,7 +82,10 @@ const KPIOptions: React.FC = () => {
       <Content>
         <ContentHeader>
           <OptionName>uTVL-0621</OptionName>
-          <ClaimButton onClick={handleClick} disabled={!isConnected}>
+          <ClaimButton
+            onClick={handleClick}
+            disabled={!isConnected || disableClaim}
+          >
             Claim Options
           </ClaimButton>
         </ContentHeader>

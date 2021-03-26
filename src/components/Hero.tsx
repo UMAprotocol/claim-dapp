@@ -1,7 +1,13 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, useModal, useOptionsSupply, useTvl } from "../hooks";
+import {
+  useConnection,
+  useModal,
+  useOptionsSupply,
+  useTvl,
+  useOptions,
+} from "../hooks";
 import {
   parseUSLocaleNumber,
   formatUSLocaleNumber,
@@ -105,6 +111,10 @@ const Hero: React.FC = () => {
     open: openSettings,
     close: closeSettings,
   } = useModal();
+  const { claims } = useOptions();
+  const claim = claims && claims.length > 0 ? claims[0] : undefined;
+  const claimed = Boolean(claim?.hasClaimed);
+  const disableClaim = claimed && isConnected;
 
   const { data: tvlData, maxPayout, currentPayout } = useTvl();
   const { supply } = useOptionsSupply();
@@ -148,7 +158,7 @@ const Hero: React.FC = () => {
             The more UMA's TVL grows the more the KPI Options are worth!
           </Subtitle>
           <ButtonsWrapper>
-            <StyledButton onClick={handleCTAClick}>
+            <StyledButton onClick={handleCTAClick} disabled={disableClaim}>
               {isConnected
                 ? "Claim Options"
                 : "Connect Wallet to Claim Options"}
@@ -193,6 +203,7 @@ const ButtonsWrapper = styled.div`
 `;
 const StyledButton = styled(Button)`
   padding: 6px 30px;
+  ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
 
 export default Hero;
