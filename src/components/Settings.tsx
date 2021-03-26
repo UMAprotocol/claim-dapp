@@ -22,42 +22,26 @@ const Ping: React.FC<PingProps> = ({ isConnected }) => (
 );
 
 type SettingsProps = {
-  onCancel: () => void;
-  onSave: () => void;
+  onComplete: () => void;
 };
-const Settings: React.FC<SettingsProps> = ({ onCancel, onSave }) => {
-  const {
-    address,
-    onboard,
-    isConnected: isConnectedToWeb3,
-    disconnect,
-  } = useConnection();
-  const [hasRemovedWallet, setHasRemovedWallet] = React.useState(false);
-  const handleRemove = () => {
-    setHasRemovedWallet(true);
-  };
-  const save = React.useCallback(() => {
-    if (hasRemovedWallet) {
-      disconnect();
-    }
-    onSave();
-  }, [disconnect, hasRemovedWallet, onSave]);
+const Settings: React.FC<SettingsProps> = ({ onComplete }) => {
+  const { address, onboard, isConnected, disconnect } = useConnection();
+
+  const handleRemove = React.useCallback(() => {
+    disconnect();
+    onComplete();
+  }, [disconnect, onComplete]);
 
   const walletName = onboard?.getState().wallet.name;
-  const isConnected = hasRemovedWallet ? false : isConnectedToWeb3;
+
   return (
     <Wrapper>
       <Heading level={2}>Options Wallet</Heading>
       <Status>
         <ConnectionInfo>
           <Ping isConnected={isConnected} />
-          <div>
-            {isConnected ? `Connected with ${walletName}` : `Not connected`}
-          </div>
+          <div>Connected with {walletName}</div>
         </ConnectionInfo>
-        {isConnected && (
-          <RemoveButton onClick={handleRemove}>Remove</RemoveButton>
-        )}
       </Status>
       {isConnected && (
         <Info>
@@ -65,12 +49,8 @@ const Settings: React.FC<SettingsProps> = ({ onCancel, onSave }) => {
           <span>{address}</span>
         </Info>
       )}
-      <ButtonWrapper>
-        <Button variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={save}>Save</Button>
-      </ButtonWrapper>
+
+      <RemoveButton onClick={handleRemove}>Remove Address</RemoveButton>
     </Wrapper>
   );
 };
@@ -92,10 +72,4 @@ const Info = tw.div`
 `;
 
 const ConnectionInfo = tw.div`flex items-center`;
-const RemoveButton = tw.button`underline text-primary`;
-const ButtonWrapper = styled.div`
-  ${tw`mt-8`}
-  > ${Button} + ${Button} {
-    margin-left: 10px;
-  }
-`;
+const RemoveButton = tw(Button)`mt-8 mx-auto`;

@@ -174,7 +174,7 @@ const Hero: React.FC = () => {
             isOpen={isSettingsOpen}
             onClose={closeSettings}
           >
-            <Settings onCancel={closeSettings} onSave={closeSettings} />
+            <Settings onComplete={closeSettings} />
           </Modal>
         </CTAWrapper>
         <Metrics metrics={metrics} />
