@@ -1,21 +1,16 @@
 import React from "react";
 import tw from "twin.macro";
+import { useNetworkCheck } from "../hooks/useNetworkCheck";
 import Portal from "./Portal";
-import { useConnection } from "../hooks";
-import { SUPPORTED_NETWORK_IDS } from "../config";
 
 const Alert: React.FC = () => {
-  const { isConnected, network } = useConnection();
+  const isNetworkSupported = useNetworkCheck();
 
-  const isNetworkUnsupported =
-    isConnected &&
-    network &&
-    !SUPPORTED_NETWORK_IDS.includes(network.chainId as 1 | 42);
-  if (!isNetworkUnsupported) {
+  if (isNetworkSupported) {
     return null;
   }
   return (
-    isNetworkUnsupported && (
+    !isNetworkSupported && (
       <Portal>
         <BgBlur />
         <Aside>

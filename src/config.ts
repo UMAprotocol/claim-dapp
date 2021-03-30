@@ -58,7 +58,7 @@ export default function config(network: Network | null) {
 export const optionsName = process.env.REACT_APP_PUBLIC || "uTVL-0621";
 export const expiryDate =
   process.env.REACT_APP_EXPIRY_DATE || "Jun 30 2021 22:00 UTC";
-export const SUPPORTED_NETWORK_IDS = [1, 42] as const;
+export const SUPPORTED_NETWORK_IDS = [1, 42];
 
 const getMerkleDistributorAddress = (chainId: 1 | 42) =>
   chainId === 1

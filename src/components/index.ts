@@ -8,4 +8,4 @@ export { default as Footer } from "./Footer";
 export { default as Options } from "./Options";
 export { default as Portal } from "./Portal";
 export { default as Tooltip } from "./Tooltip";
-export { default as NetworkAlert } from "./NewtorkAlert";
+export { default as NetworkAlert } from "./NetworkAlert";
