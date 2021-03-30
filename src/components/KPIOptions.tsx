@@ -132,8 +132,7 @@ const OptionName = styled.div`
   font-size: 28px;
 `;
 const ClaimButton = styled(Button)`
-  padding: 15px 50px;
-  ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
+  ${tw`py-4 px-6 sm:px-12 disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
 const Content = tw.div`
     border-b border-t border-gray 

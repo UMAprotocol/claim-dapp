@@ -7,7 +7,7 @@ import { KPIOptionsToken, infuraId } from "../config";
 export function useOptionsSupply() {
   const { provider, network } = useConnection();
   const { data, isLoading, error } = useQuery<ethers.BigNumber>(
-    ["kpi options supply", provider, network?.chainId],
+    ["kpi options supply", provider?.connection, network?.chainId],
     () => getOptionsSupply(provider, network)
   );
 

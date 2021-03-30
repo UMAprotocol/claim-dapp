@@ -17,5 +17,5 @@ const Options: React.FC = () => {
 export default Options;
 
 const Wrapper = tw.div`
-    px-10 py-20 grid grid-cols-2 gap-10
+    px-10 py-20 grid grid-cols-1 md:grid-cols-2 gap-10
 `;

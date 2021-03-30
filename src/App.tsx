@@ -8,6 +8,7 @@ import {
   Navbar,
   Footer,
   Options,
+  NetworkAlert,
 } from "./components";
 import { ConnectionProvider, OptionsProvider } from "./hooks";
 
@@ -17,6 +18,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ConnectionProvider>
+        <NetworkAlert />
         <OptionsProvider>
           <Navbar />
           <main>

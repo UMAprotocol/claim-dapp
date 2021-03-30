@@ -40,14 +40,14 @@ export function useClaims() {
   return { claims: filteredClaims, isLoading, error, refetch };
 }
 
-type ChainId = typeof SUPPORTED_NETWORK_IDS[number];
+type ChainId = 1 | 42;
 type getProofParams = {
   address: string;
   chainId: ChainId;
 };
 async function getClaims({ address: claimerAddress, chainId }: getProofParams) {
   const merkleDistributorAddress = contracts.getMerkleDistributorAddress(
-    chainId
+    chainId as ChainId
   );
   const merkleProofUrl = URLS.merkleProofHelper;
   const headers = {
