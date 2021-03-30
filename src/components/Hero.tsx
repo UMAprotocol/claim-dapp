@@ -14,7 +14,7 @@ import {
   updateDefaultObject,
 } from "../utils";
 import Button from "./Button";
-import { ReactComponent as KPILogo } from "../assets/kpi-frame.svg";
+import { ReactComponent as Logo } from "../assets/kpi-frame.svg";
 import { Settings as SettingsIcon } from "../assets/icons";
 import { MaxWidthWrapper } from "./Wrappers";
 import Heading from "./Heading";
@@ -181,12 +181,14 @@ const Hero: React.FC = () => {
 };
 
 const Wrapper = styled.div`
-  padding: 0 142px;
-  ${tw`pb-10 pt-5`};
+  ${tw`pb-10 px-20 pt-5`};
 `;
 const CTAWrapper = tw.div`flex flex-col items-center`;
 const TitleWrapper = tw.div`flex`;
-const Title = tw(Heading)`text-7xl leading-snug ml-7`;
+const Title = tw(Heading)`text-5xl md:text-7xl leading-snug ml-7 flex-1`;
+const KPILogo = styled(Logo)`
+  min-width: 36px;
+`;
 const Subtitle = tw.span`text-xl leading-relaxed`;
 const ButtonsWrapper = styled.div`
   ${tw`w-full flex justify-center items-center`};

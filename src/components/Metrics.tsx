@@ -65,32 +65,26 @@ const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
   return <MetricWrapper>{Content}</MetricWrapper>;
 };
 const MetricWrapper = tw.div`
-  first:row-span-2 py-5 border-b border-black border-opacity-50 flex flex-col justify-between
+  first:row-span-2 py-3 lg:py-5 border-b border-black border-opacity-50 flex flex-col justify-between
 `;
 const Description = styled.div`
-  font-size: 22px;
-  ${tw`flex items-center font-semibold`};
+  ${tw`flex items-center font-semibold text-xl`};
   > svg {
     ${tw`hover:cursor-pointer`}
     margin-left: 10px;
   }
 `;
 const Quantifier = styled.div`
-  ${tw`font-semibold ml-2`};
-  font-size: 22px;
+  ${tw`font-semibold ml-2 text-xl`};
 `;
 const Header = tw.div`flex items-baseline`;
 const Heading = styled(UnstyledHeading)`
-  font-size: 42px;
-  ${tw`mb-5`};
+  ${tw`mb-5 md:text-5xl text-3xl`};
 `;
 const BigHeading = styled(UnstyledHeading)`
-  font-size: 100px;
-  line-height: 1.08;
+  ${tw` md:text-8xl text-7xl`}
   ~ div {
-    ${tw`font-semibold`};
-    font-size: 42px;
-    line-height: 1.375;
+    ${tw`font-semibold md:text-5xl text-3xl`};
   }
 `;
 
@@ -119,6 +113,8 @@ const Wrapper = tw.div`
  w-full mt-8 border-t border-black border-opacity-50
 `;
 const Grid = styled.div`
-  ${tw`grid gap-x-5 pt-8`};
-  grid-template-columns: 380px 1fr 1fr;
+  ${tw`grid grid-cols-1 md:grid-cols-2 gap-x-5 pt-8`};
+  @media (min-width: 1280px) {
+    grid-template-columns: 380px 1fr 1fr;
+  }
 `;
