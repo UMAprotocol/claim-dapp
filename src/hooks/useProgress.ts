@@ -12,7 +12,7 @@ export function useProgress({
 }: useProgressParams) {
   const progress = compareFn
     ? compareFn(current, max)
-    : Math.floor((current / max) * 100) / 100;
+    : Math.min(Math.floor((current / max) * 100) / 100, 1);
   const filledWidth = totalWidth * progress;
 
   return {

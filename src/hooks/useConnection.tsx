@@ -2,6 +2,7 @@ import React from "react";
 import { ethers } from "ethers";
 import Onboard from "bnc-onboard";
 import { API as OnboardApi, Wallet } from "bnc-onboard/dist/src/interfaces";
+import Alert from "../components/Alert";
 
 import config, { SUPPORTED_NETWORK_IDS } from "../config";
 
@@ -129,6 +130,7 @@ export const ConnectionProvider: React.FC<WithDelegatedProps> = ({
 
   return (
     <ConnectionContext.Provider value={[connection, dispatch]} {...delegated}>
+      {connection.error && <Alert />}
       {children}
     </ConnectionContext.Provider>
   );
@@ -159,9 +161,10 @@ export function useConnection() {
               !SUPPORTED_NETWORK_IDS.includes(networkId) &&
               networkId != null
             ) {
-              throw new Error(
-                "This dApp will work only with the Mainnet or Kovan network"
-              );
+              dispatch({
+                type: "set error",
+                error: new Error("Unsopported network."),
+              });
             }
             onboard?.config({ networkId: networkId });
           },

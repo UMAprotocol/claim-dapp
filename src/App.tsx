@@ -1,5 +1,6 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ErrorBoundary } from "react-error-boundary";
 import {
   Section,
   AccentSection,
@@ -26,6 +27,7 @@ function App() {
             <Section>
               <Options />
             </Section>
+
             <AccentSection>
               <About />
             </AccentSection>

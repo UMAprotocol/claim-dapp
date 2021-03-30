@@ -55,6 +55,7 @@ export function formatUSLocaleNumber(n: number, digits = 1, currency?: string) {
   const format = Intl.NumberFormat("en-US", {
     style: currency ? "currency" : "decimal",
     currency,
+    minimumFractionDigits: 0,
     maximumFractionDigits: digits,
   }).format;
   return format(n);
