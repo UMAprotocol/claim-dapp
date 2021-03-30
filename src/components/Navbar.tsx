@@ -9,21 +9,21 @@ import { MaxWidthWrapper } from "./Wrappers";
 const links = [
   {
     name: "How UMA Works",
-    to: "https://github.com/",
+    to: "https://docs.umaproject.org/getting-started/overview",
   },
   {
     name: "Getting Started",
-    to: "https://github.com",
+    to: "https://docs.umaproject.org/build-walkthrough/build-process",
   },
   {
     name: "Docs",
-    to: "https://github.com",
+    to: "https://docs.umaproject.org/",
   },
   {
     name: "Vote",
-    to: "https://github.com",
+    to: "https://vote.umaproject.org/",
   },
-  { name: "KPI Options", to: "/" },
+  { name: "Rewards", to: "/" },
 ];
 const Navbar: React.FC = () => (
   <Wrapper>
@@ -41,28 +41,48 @@ const Navbar: React.FC = () => (
         </LinksList>
         <IconsList>
           <IconItem>
-            <Link href="" rel="noopener norefferrer" target="_blank">
-              <Twitter />
-            </Link>
-          </IconItem>
-          <IconItem>
-            <Link href="" rel="noopener norefferrer" target="_blank">
-              <Discord />
-            </Link>
-          </IconItem>
-          <IconItem>
-            <Link href="" rel="noopener norefferrer" target="_blank">
-              <Discourse />
-            </Link>
-          </IconItem>
-          <IconItem>
-            <Link href="" rel="noopener norefferrer" target="_blank">
+            <Link
+              href="https://medium.com/uma-project"
+              rel="noopener norefferrer"
+              target="_blank"
+            >
               <Medium />
             </Link>
           </IconItem>
           <IconItem>
-            <Link href="" rel="noopener norefferrer" target="_blank">
+            <Link
+              href="https://github.com/umaprotocol"
+              rel="noopener norefferrer"
+              target="_blank"
+            >
               <Github />
+            </Link>
+          </IconItem>
+          <IconItem>
+            <Link
+              href="https://twitter.com/umaprotocol"
+              rel="noopener norefferrer"
+              target="_blank"
+            >
+              <Twitter />
+            </Link>
+          </IconItem>
+          <IconItem>
+            <Link
+              href="https://discourse.umaproject.org/"
+              rel="noopener norefferrer"
+              target="_blank"
+            >
+              <Discourse />
+            </Link>
+          </IconItem>
+          <IconItem>
+            <Link
+              href="https://discord.com/invite/jsb9XQJ"
+              rel="noopener norefferrer"
+              target="_blank"
+            >
+              <Discord />
             </Link>
           </IconItem>
         </IconsList>
