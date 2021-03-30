@@ -2,9 +2,8 @@ import React from "react";
 import { ethers } from "ethers";
 import Onboard from "bnc-onboard";
 import { API as OnboardApi, Wallet } from "bnc-onboard/dist/src/interfaces";
-import Alert from "../components/Alert";
 
-import config, { SUPPORTED_NETWORK_IDS } from "../config";
+import config from "../config";
 
 type Provider = ethers.providers.Web3Provider;
 type Address = string;
@@ -58,6 +57,23 @@ type WithDelegatedProps = {
   [k: string]: unknown;
 };
 
+type ChainId = 1 | 42 | 3 | 4;
+const getNetworkName = (chainId: ChainId) => {
+  switch (chainId) {
+    case 1: {
+      return "homestead";
+    }
+    case 42: {
+      return "kovan";
+    }
+    case 3: {
+      return "ropsten";
+    }
+    case 4: {
+      return "rinkeby";
+    }
+  }
+};
 const EMPTY: unique symbol = Symbol();
 
 const ConnectionContext = React.createContext<
@@ -130,7 +146,6 @@ export const ConnectionProvider: React.FC<WithDelegatedProps> = ({
 
   return (
     <ConnectionContext.Provider value={[connection, dispatch]} {...delegated}>
-      {connection.error && <Alert />}
       {children}
     </ConnectionContext.Provider>
   );
@@ -156,17 +171,15 @@ export function useConnection() {
           address: (address: string | null) => {
             dispatch({ type: "set address", address });
           },
-          network: async (networkId: any) => {
-            if (
-              !SUPPORTED_NETWORK_IDS.includes(networkId) &&
-              networkId != null
-            ) {
-              dispatch({
-                type: "set error",
-                error: new Error("Unsopported network."),
-              });
-            }
+          network: async (networkId) => {
             onboard?.config({ networkId: networkId });
+            dispatch({
+              type: "set network",
+              network: {
+                chainId: networkId,
+                name: getNetworkName(networkId as ChainId),
+              },
+            });
           },
           wallet: async (wallet: Wallet) => {
             if (wallet.provider) {
@@ -190,6 +203,8 @@ export function useConnection() {
         },
         walletSelect: config(network).onboardConfig.onboardWalletSelect,
         walletCheck: config(network).onboardConfig.walletCheck,
+        // To prevent providers from requesting block numbers every 4 seconds (see https://github.com/WalletConnect/walletconnect-monorepo/issues/357)
+        blockPollingInterval: 1000 * 60 * 60,
       });
       await onboardInstance.walletSelect();
       await onboardInstance.walletCheck();

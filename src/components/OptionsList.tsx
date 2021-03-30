@@ -31,7 +31,7 @@ const projects = [
   {
     name: "uGAS - Ethereum Gas Futures",
     description:
-      "A synthetic futures contract that settles to the 30-Day Median Ethereum Gas Price. Speculate on Ethereum gas prices with a Long or Short uGAS position. uGAS can be used as a hedge against the cost of gas on the Ethereum blockchain.",
+      "A synthetic futures contract that settles to the 30-Day median Ethereum Gas Price. Speculate on Ethereum gas prices with a Long or Short uGAS position. uGAS can be used as a hedge against the cost of gas on the Ethereum blockchain.",
     mintLink: "https://degenerative.finance/",
     imgUrl: uGasLogo,
   },

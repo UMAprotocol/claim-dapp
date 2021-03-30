@@ -1,6 +1,5 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ErrorBoundary } from "react-error-boundary";
 import {
   Section,
   AccentSection,
@@ -9,6 +8,7 @@ import {
   Navbar,
   Footer,
   Options,
+  NetworkAlert,
 } from "./components";
 import { ConnectionProvider, OptionsProvider } from "./hooks";
 
@@ -18,6 +18,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ConnectionProvider>
+        <NetworkAlert />
         <OptionsProvider>
           <Navbar />
           <main>
@@ -27,7 +28,6 @@ function App() {
             <Section>
               <Options />
             </Section>
-
             <AccentSection>
               <About />
             </AccentSection>

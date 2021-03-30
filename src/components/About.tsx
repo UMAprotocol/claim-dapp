@@ -23,9 +23,9 @@ const About: React.FC = () => {
             </Link>
             . The token airdropped is called {optionsName} and the value of each
             token option depends on UMA’s Total Value Locked (TVL), thereby
-            giving every recipient an incentive to grow UMA protocol! <br /> The
-            0621 in the token name represents the month and year the option(s)
-            will expire (June 2021).
+            giving every recipient an incentive to grow UMA protocol! The “0621”
+            in the token name represents the month and year the option(s) will
+            expire (June 2021).
           </p>
           <p>
             Compared to a typical airdrop which can be easily dumped, KPI
@@ -35,10 +35,10 @@ const About: React.FC = () => {
           <p>
             The Risk Labs foundation has allotted 2,000,000 UMA tokens for this
             purpose. {optionsName} holders will be able to redeem their token
-            options for UMA tokens on {expiryDate}. {optionsName}
-            tokens will have a minimum value of 0.1 $UMA each — but if the max
-            KPI target is hit (i.e., $2 billion) each option will pay out 2
-            $UMA. View here to learn more about KPI options{" "}
+            options for UMA tokens on {expiryDate}. {optionsName} tokens will
+            have a minimum value of 0.1 $UMA each — but if the max KPI target is
+            hit (i.e., $2 billion) each option will pay out 2 $UMA. View here to
+            learn more about KPI options{" "}
             <Link
               href="https://medium.com/uma-project/uma-kpi-options-and-airdrop-bae86be16ce4"
               target="_blank"

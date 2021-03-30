@@ -22,11 +22,8 @@ import Modal from "./Modal";
 import Settings from "./Settings";
 import Claim from "./Claim";
 import Metrics from "./Metrics";
-import Link from "./Link";
 import { optionsName } from "../config";
-const MoreInfoLink = tw(Link)`
-  text-xl no-underline
-`;
+
 const defaultMetrics = {
   tvl: {
     value: "$0",
@@ -34,13 +31,6 @@ const defaultMetrics = {
     description: (
       <div>
         <div>UMA’s Total Value Locked (TVL)</div>
-        <MoreInfoLink
-          href="https://monitor.simpleid.xyz/d/x4CYPILGk/uma?orgId=1"
-          target="_blank"
-          rel="noopener norefferrer"
-        >
-          More Info
-        </MoreInfoLink>
       </div>
     ),
   },
