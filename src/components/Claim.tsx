@@ -10,7 +10,7 @@ import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
 import { useOptionsClaim, usePayouts } from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
-import { expiryDate } from "../config";
+import { expiryDate, optionsName } from "../config";
 type ClaimProps = {
   onCancel?: () => void;
 };
@@ -36,11 +36,13 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
         </Heading>
       </Header>
       <Content>
-        <OptionName>uTVL-0621</OptionName>
+        <OptionName>{optionsName}</OptionName>
         <Metrics>
           <div>
             <Label>Quantity</Label>
-            <Value>{payouts?.quantity ?? 0}</Value>
+            <Value>
+              {payouts?.quantity ?? 0} <Unit>{optionsName}</Unit>
+            </Value>
           </div>
           <div>
             <Label>Expiry</Label>
@@ -48,15 +50,21 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
           </div>
           <div>
             <Label>Current Payout</Label>
-            <Value>{payouts?.currentPayout ?? "-"}</Value>
+            <Value>
+              {payouts?.currentPayout ?? "-"} <Unit>UMA</Unit>
+            </Value>
           </div>
           <div>
             <Label>Min. Payout</Label>
-            <Value>{payouts?.minPayout ?? "-"}</Value>
+            <Value>
+              {payouts?.minPayout ?? "-"} <Unit>UMA</Unit>
+            </Value>
           </div>
           <div>
             <Label>Max. Payout</Label>
-            <Value>{payouts?.maxPayout ?? "-"}</Value>
+            <Value>
+              {payouts?.maxPayout ?? "-"} <Unit>UMA</Unit>
+            </Value>
           </div>
         </Metrics>
       </Content>
@@ -118,3 +126,4 @@ const EtherscanLink = tw(
   Link
 )`mt-4 p-2 text-primary text-right hover:underline`;
 const LinkIcon = tw(ExternalLink)`w-3 h-3 inline-block`;
+const Unit = tw.span`text-gray text-sm font-light ml-1`;

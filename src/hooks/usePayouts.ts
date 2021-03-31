@@ -20,9 +20,10 @@ export function usePayouts() {
   const quantity = parseFloat(
     ethers.utils.formatUnits(ethers.BigNumber.from(claim?.amount ?? 0), "ether")
   );
-  const minPayout = generalMinPayout * quantity;
-  const maxPayout = generalMaxPayout * quantity;
-  const currentPayout = Number(generalCurrentPayout) * quantity;
+  const minPayout = Math.round(100 * generalMinPayout * quantity) / 100;
+  const maxPayout = Math.round(100 * (generalMaxPayout * quantity)) / 100;
+  const currentPayout =
+    Math.round(100 * (Number(generalCurrentPayout) * quantity)) / 100;
   return {
     quantity,
     tvl,
