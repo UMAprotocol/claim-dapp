@@ -23,39 +23,48 @@ const defaultInfos: Record<string, InfoProps> = {
   quantity: {
     label: "Quantity",
     value: "-",
+    unit: `${optionsName}`,
   },
   expiry: {
     label: "Expiry",
-    value: expiryDate,
+    value: expiryDate.replace(/UTC/g, ""),
+    description: (
+      <span>
+        The <strong>UTC</strong> time at which your options will{" "}
+        <strong>expire</strong>.
+      </span>
+    ),
   },
   minPayout: {
     label: "Min. Payout",
     value: "-",
+    unit: "UMA",
     description: (
       <span>
         The <strong>minimum</strong> amount of UMA all of your {optionsName}{" "}
-        options will be worth <strong>at the current UMA price</strong>
+        options will be worth <strong>based on UMA’s current TVL</strong>.
       </span>
     ),
   },
   currentPayout: {
     label: "Current Payout",
     value: "-",
+    unit: "UMA",
     description: (
       <span>
         The <strong>current</strong> amount of UMA all of your {optionsName}{" "}
-        options are worth <strong>at the current UMA price</strong>
+        options are worth <strong>based on UMA’s current TVL</strong>.
       </span>
     ),
   },
   maxPayout: {
     label: "Max. Payout",
     value: "-",
+    unit: "UMA",
     description: (
       <span>
         The <strong>maximum</strong> amount of UMA all of your {optionsName}{" "}
-        options can be worth if UMA’s TVL reaches $2 billion{" "}
-        <strong>at the current UMA price</strong>
+        options can be worth if UMA’s TVL reaches <strong>$2 billion</strong>.
       </span>
     ),
   },

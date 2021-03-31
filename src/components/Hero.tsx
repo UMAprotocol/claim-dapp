@@ -20,10 +20,14 @@ import { MaxWidthWrapper } from "./Wrappers";
 import Heading from "./Heading";
 import Modal from "./Modal";
 import Settings from "./Settings";
+import Link from "./Link";
 import Claim from "./Claim";
 import Metrics from "./Metrics";
 import { optionsName } from "../config";
 
+const MoreInfoLink = tw(Link)`
+  text-xl no-underline
+`;
 const defaultMetrics = {
   tvl: {
     value: "$0",
@@ -31,11 +35,18 @@ const defaultMetrics = {
     description: (
       <div>
         <div>UMA’s Total Value Locked (TVL)</div>
+        <MoreInfoLink
+          href="https://monitor.simpleid.xyz/d/x4CYPILGk/uma?orgId=1"
+          target="_blank"
+          rel="noopener norefferrer"
+        >
+          More Info
+        </MoreInfoLink>
       </div>
     ),
   },
   maxReward: {
-    value: "2,000,000",
+    value: "0",
     quantifier: "UMA",
     description: "Maximum reward",
     extendedDescription: (
@@ -47,7 +58,7 @@ const defaultMetrics = {
     ),
   },
   currentReward: {
-    value: "325,000",
+    value: "0",
     quantifier: "UMA",
     description: "Current expected reward",
     extendedDescription: (
@@ -59,7 +70,7 @@ const defaultMetrics = {
     ),
   },
   supply: {
-    value: "100,000",
+    value: "0",
     description: "KPI options in circulation",
     extendedDescription: (
       <p>
@@ -69,7 +80,7 @@ const defaultMetrics = {
     ),
   },
   multiplier: {
-    value: "1x",
+    value: "0x",
     description: "Current option multiplier",
     extendedDescription: (
       <p>

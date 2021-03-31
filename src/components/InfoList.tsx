@@ -7,12 +7,14 @@ import { Info as UnstyledIcon } from "../assets/icons";
 export type InfoProps = {
   label: string;
   value: string | number;
+  unit?: string;
   description?: React.ReactNode;
 };
 
 const Info: React.FC<InfoProps> = ({
   label,
   value,
+  unit,
   description,
 }: InfoProps) => {
   const {
@@ -40,7 +42,9 @@ const Info: React.FC<InfoProps> = ({
           <InfoIcon onMouseOver={handleMouseOver} onMouseLeave={hideTooltip} />
         )}
       </Label>
-      <span>{value}</span>
+      <span>
+        {value} <Unit>{unit}</Unit>
+      </span>
       {tooltipOpen && (
         <Tooltip left={tooltipLeft} top={tooltipTop}>
           {description}
@@ -72,3 +76,4 @@ const InfoIcon = styled(UnstyledIcon)`
   ${tw`relative top-1 hover:cursor-pointer`};
   margin-left: 10px;
 `;
+const Unit = tw.span`text-gray text-xs font-light ml-1`;
