@@ -1,19 +1,11 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import {
-  useConnection,
-  useModal,
-  usePayouts,
-  useTvl,
-  useOptionsClaim,
-} from "../hooks";
+import { useConnection, usePayouts, useTvl, useHasClaimed } from "../hooks";
 
 import Heading from "./Heading";
 import Button from "./Button";
 import ProgressBar from "./ProgressBar";
-import Modal from "./Modal";
-import Claim from "./Claim";
 import Expiry from "./Expiry";
 import InfoList, { InfoProps } from "./InfoList";
 import Reason from "./Reason";
@@ -69,21 +61,23 @@ const defaultInfos: Record<string, InfoProps> = {
     ),
   },
 };
-const KPIOptions: React.FC = () => {
+
+type KPIOptionsProps = {
+  onClaim: () => void;
+};
+const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim }) => {
   const { isConnected } = useConnection();
-  const { isOpen, open, close, modalRef } = useModal();
+
   const { data: tvlData } = useTvl();
 
   const { metaData, ...values } = usePayouts();
 
   const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
-  const { claims } = useOptionsClaim();
-  const claim = claims && claims.length > 0 ? claims[0] : undefined;
-  const claimed = Boolean(claim?.hasClaimed);
-  const disableClaim = claimed && isConnected;
+  const hasClaimed = useHasClaimed();
+  const disableClaim = hasClaimed && isConnected;
   const handleClick = React.useCallback(() => {
-    open();
-  }, [open]);
+    onClaim();
+  }, [onClaim]);
   const tvl = tvlData?.currentTvl;
 
   return (
@@ -125,9 +119,6 @@ const KPIOptions: React.FC = () => {
           }
         />
       </Content>
-      <Modal isOpen={isOpen} onClose={close} ref={modalRef}>
-        <Claim onCancel={close} />
-      </Modal>
     </Wrapper>
   );
 };

@@ -1,69 +1,102 @@
-import { ethers } from "ethers";
 import merkleDistributor from "@uma/core/build/contracts/MerkleDistributor.json";
 import ERC20 from "@uma/core/build/contracts/ERC20.json";
-type Network = ethers.providers.Network;
+import { Initialization } from "bnc-onboard/dist/src/interfaces";
+
+import type { ChainId, ValidChainId } from "./utils/chainId";
 
 export const infuraId = process.env.REACT_APP_PUBLIC_INFURA_ID || "";
-export default function config(network: Network | null) {
-  const infuraRpc = `https://${
-    network ? network?.name : "mainnet"
-  }.infura.io/v3/${infuraId}`;
+const getNetworkName = (chainId: ChainId) => {
+  switch (chainId) {
+    case 1: {
+      return "homestead";
+    }
+    case 42: {
+      return "kovan";
+    }
+    case 3: {
+      return "ropsten";
+    }
+    case 4: {
+      return "rinkeby";
+    }
+  }
+};
+export function onboardBaseConfig(_chainId?: ValidChainId): Initialization {
+  const chainId = _chainId ?? 1;
+  const infuraRpc = `https://${getNetworkName(
+    chainId
+  )}.infura.io/v3/${infuraId}`;
 
   return {
-    onboardConfig: {
-      apiKey: process.env.REACT_APP_PUBLIC_ONBOARD_API_KEY || "",
-      onboardWalletSelect: {
-        wallets: [
-          { walletName: "metamask", preferred: true },
-          {
-            walletName: "imToken",
-            rpcUrl:
-              !!network && network.chainId === 1
-                ? "https://mainnet-eth.token.im"
-                : "https://eth-testnet.tokenlon.im",
-            preferred: true,
-          },
-          { walletName: "coinbase", preferred: true },
-          {
-            walletName: "portis",
-            apiKey: process.env.REACT_APP_PUBLIC_PORTIS_API_KEY,
-          },
-          { walletName: "trust", rpcUrl: infuraRpc },
-          { walletName: "dapper" },
-          {
-            walletName: "walletConnect",
-            rpc: { [network?.chainId || 1]: infuraRpc },
-          },
-          { walletName: "walletLink", rpcUrl: infuraRpc },
-          { walletName: "opera" },
-          { walletName: "operaTouch" },
-          { walletName: "torus" },
-          { walletName: "status" },
-          { walletName: "unilogin" },
-          {
-            walletName: "ledger",
-            rpcUrl: infuraRpc,
-          },
-        ],
-      },
-      walletCheck: [
-        { checkName: "connect" },
-        { checkName: "accounts" },
-        { checkName: "network" },
-        { checkName: "balance", minimumBalance: "0" },
+    dappId: process.env.REACT_APP_PUBLIC_ONBOARD_API_KEY || "",
+    hideBranding: true,
+    networkId: 1, // Default to main net. If on a different network will change with the subscription.
+    walletSelect: {
+      wallets: [
+        { walletName: "metamask", preferred: true },
+        {
+          walletName: "imToken",
+          rpcUrl:
+            chainId === 1
+              ? "https://mainnet-eth.token.im"
+              : "https://eth-testnet.tokenlon.im",
+          preferred: true,
+        },
+        { walletName: "coinbase", preferred: true },
+        {
+          walletName: "portis",
+          apiKey: process.env.REACT_APP_PUBLIC_PORTIS_API_KEY,
+        },
+        { walletName: "trust", rpcUrl: infuraRpc },
+        { walletName: "dapper" },
+        {
+          walletName: "walletConnect",
+          rpc: { [chainId]: infuraRpc },
+        },
+        { walletName: "walletLink", rpcUrl: infuraRpc },
+        { walletName: "opera" },
+        { walletName: "operaTouch" },
+        { walletName: "torus" },
+        { walletName: "status" },
+        { walletName: "unilogin" },
+        {
+          walletName: "ledger",
+          rpcUrl: infuraRpc,
+        },
       ],
     },
+    walletCheck: [
+      { checkName: "connect" },
+      { checkName: "accounts" },
+      { checkName: "network" },
+      { checkName: "balance", minimumBalance: "0" },
+    ],
+    // To prevent providers from requesting block numbers every 4 seconds (see https://github.com/WalletConnect/walletconnect-monorepo/issues/357)
+    blockPollingInterval: 1000 * 60 * 60,
   };
 }
 export const optionsName = process.env.REACT_APP_PUBLIC || "uTVL-0621";
 export const expiryDate =
   process.env.REACT_APP_EXPIRY_DATE || "Jun 30 2021 22:00 UTC";
-export const SUPPORTED_NETWORK_IDS = [1, 42];
 
-const getMerkleDistributorAddress = (chainId: 1 | 42) =>
-  chainId === 1
-    ? process.env.REACT_APP_PUBLIC_MAINNET_DISTRIBUTOR_ADDRESS || ""
-    : process.env.REACT_APP_PUBLIC_KOVAN_DISTRIBUTOR_ADDRESS || "";
+const getMerkleDistributorAddress = (chainId: ValidChainId) => {
+  switch (chainId) {
+    case 1: {
+      return process.env.REACT_APP_PUBLIC_MAINNET_DISTRIBUTOR_ADDRESS || "";
+    }
+    case 42: {
+      return process.env.REACT_APP_PUBLIC_KOVAN_DISTRIBUTOR_ADDRESS || "";
+    }
+    case 1337: {
+      return (
+        // if we haven't set the local address, assume we're mainnet forking
+        process.env.REACT_APP_PUBLIC_LOCAL_MAINNET_DISTRIBUTOR_ADDRESS ||
+        process.env.REACT_APP_PUBLIC_MAINNET_DISTRIBUTOR_ADDRESS ||
+        ""
+      );
+    }
+  }
+};
 
 export const contracts = {
   merkleDistributorABI: merkleDistributor.abi,
@@ -72,10 +105,24 @@ export const contracts = {
 
 export const KPIOptionsToken = {
   abi: ERC20.abi,
-  address: (chainId: 1 | 42) =>
-    chainId === 1
-      ? process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || ""
-      : process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "",
+  address: (chainId: ValidChainId) => {
+    switch (chainId) {
+      case 1: {
+        return process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || "";
+      }
+      case 42: {
+        return process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "";
+      }
+      case 1337: {
+        return (
+          // if we haven't set the local address, assume we're mainnet forking
+          process.env.REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS ||
+          process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS ||
+          ""
+        );
+      }
+    }
+  },
 };
 
 export const currentWindowIndex = Number(
