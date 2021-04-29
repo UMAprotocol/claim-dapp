@@ -1,12 +1,9 @@
 import { useQuery } from "react-query";
 import { useConnection } from "./useConnection";
 import { ethers } from "ethers";
-import {
-  SUPPORTED_NETWORK_IDS,
-  contracts,
-  currentWindowIndex,
-  URLS,
-} from "../config";
+import { contracts, currentWindowIndex, URLS } from "../config";
+
+import { ValidChainId } from "../utils/chainId";
 
 export type Claim = {
   amount: string;
@@ -20,16 +17,16 @@ export type Claim = {
   hasClaimed: boolean;
 };
 export function useClaims() {
-  const { address, network } = useConnection();
+  const { account, chainId } = useConnection();
   const { data, isLoading, error, refetch } = useQuery<Claim[], Error>(
-    [address, network?.chainId],
+    [account, chainId],
     () =>
       getClaims({
-        address: ethers.utils.getAddress(address || ""),
-        chainId: network?.chainId as ChainId,
+        address: ethers.utils.getAddress(account || ""),
+        chainId: chainId as ValidChainId,
       }),
     {
-      enabled: Boolean(network?.chainId) && Boolean(address),
+      enabled: Boolean(chainId) && Boolean(account),
     }
   );
 
@@ -40,14 +37,23 @@ export function useClaims() {
   return { claims: filteredClaims, isLoading, error, refetch };
 }
 
-type ChainId = 1 | 42;
+export function useHasClaimed(address?: string) {
+  const { claims } = useClaims();
+  const claim = claims && claims[0];
+  return Boolean(claim?.hasClaimed);
+}
+
 type getProofParams = {
   address: string;
-  chainId: ChainId;
+  chainId: ValidChainId;
 };
-async function getClaims({ address: claimerAddress, chainId }: getProofParams) {
+async function getClaims({
+  address: claimerAddress,
+  chainId: _chainId,
+}: getProofParams) {
+  const chainId = _chainId === 1337 ? 42 : _chainId;
   const merkleDistributorAddress = contracts.getMerkleDistributorAddress(
-    chainId as ChainId
+    chainId
   );
   const merkleProofUrl = URLS.merkleProofHelper;
   const headers = {

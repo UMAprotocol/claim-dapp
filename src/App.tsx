@@ -4,10 +4,9 @@ import {
   Section,
   AccentSection,
   About,
-  Hero,
+  MainSection,
   Navbar,
   Footer,
-  Options,
   NetworkAlert,
 } from "./components";
 import { ConnectionProvider, OptionsProvider } from "./hooks";
@@ -22,12 +21,7 @@ function App() {
         <OptionsProvider>
           <Navbar />
           <main>
-            <AccentSection>
-              <Hero />
-            </AccentSection>
-            <Section>
-              <Options />
-            </Section>
+            <MainSection />
             <AccentSection>
               <About />
             </AccentSection>

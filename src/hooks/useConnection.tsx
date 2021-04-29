@@ -3,19 +3,19 @@ import { ethers } from "ethers";
 import Onboard from "bnc-onboard";
 import { API as OnboardApi, Wallet } from "bnc-onboard/dist/src/interfaces";
 
-import config from "../config";
+import { onboardBaseConfig } from "../config";
+import type { ValidChainId } from "../utils/chainId";
 
 type Provider = ethers.providers.Web3Provider;
 type Address = string;
-type Network = ethers.providers.Network;
 type Signer = ethers.Signer;
 
 type ConnectionState = {
   provider: Provider | null;
   onboard: OnboardApi | null;
   signer: Signer | null;
-  network: Network | null;
-  address: Address | null;
+  chainId: ValidChainId | null;
+  account: Address | null;
   error: Error | null;
   isConnected: boolean;
 };
@@ -34,12 +34,12 @@ type Action =
       signer: Signer | null;
     }
   | {
-      type: "set network";
-      network: Network | null;
+      type: "set chainId";
+      chainId: ValidChainId | null;
     }
   | {
-      type: "set address";
-      address: Address | null;
+      type: "set account";
+      account: Address | null;
     }
   | {
       type: "set error";
@@ -57,23 +57,6 @@ type WithDelegatedProps = {
   [k: string]: unknown;
 };
 
-type ChainId = 1 | 42 | 3 | 4;
-const getNetworkName = (chainId: ChainId) => {
-  switch (chainId) {
-    case 1: {
-      return "homestead";
-    }
-    case 42: {
-      return "kovan";
-    }
-    case 3: {
-      return "ropsten";
-    }
-    case 4: {
-      return "rinkeby";
-    }
-  }
-};
 const EMPTY: unique symbol = Symbol();
 
 const ConnectionContext = React.createContext<
@@ -101,16 +84,16 @@ function connectionReducer(state: ConnectionState, action: Action) {
         signer: action.signer,
       };
     }
-    case "set network": {
+    case "set chainId": {
       return {
         ...state,
-        network: action.network,
+        chainId: action.chainId,
       };
     }
-    case "set address": {
+    case "set account": {
       return {
         ...state,
-        address: action.address,
+        account: action.account,
       };
     }
     case "set error": {
@@ -138,8 +121,8 @@ export const ConnectionProvider: React.FC<WithDelegatedProps> = ({
     provider: null,
     onboard: null,
     signer: null,
-    network: null,
-    address: null,
+    chainId: null,
+    account: null,
     error: null,
     isConnected: false,
   });
@@ -158,27 +141,22 @@ export function useConnection() {
   }
 
   const [
-    { provider, onboard, signer, network, address, error, isConnected },
+    { provider, onboard, signer, chainId, account, error, isConnected },
     dispatch,
   ] = context;
   const connect = React.useCallback(async () => {
     try {
       const onboardInstance = Onboard({
-        dappId: config(network).onboardConfig.apiKey,
-        hideBranding: true,
-        networkId: 1, // Default to main net. If on a different network will change with the subscription.
+        ...onboardBaseConfig(chainId as ValidChainId),
         subscriptions: {
-          address: (address: string | null) => {
-            dispatch({ type: "set address", address });
+          address: (address: string) => {
+            dispatch({ type: "set account", account: address });
           },
           network: async (networkId) => {
-            onboard?.config({ networkId: networkId });
+            onboard?.config({ networkId });
             dispatch({
-              type: "set network",
-              network: {
-                chainId: networkId,
-                name: getNetworkName(networkId as ChainId),
-              },
+              type: "set chainId",
+              chainId: networkId as ValidChainId,
             });
           },
           wallet: async (wallet: Wallet) => {
@@ -192,19 +170,16 @@ export function useConnection() {
                 signer: ethersProvider.getSigner(),
               });
               dispatch({
-                type: "set network",
-                network: await ethersProvider.getNetwork(),
+                type: "set chainId",
+                chainId: (await ethersProvider.getNetwork())
+                  .chainId as ValidChainId,
               });
             } else {
               dispatch({ type: "set provider", provider: null });
-              dispatch({ type: "set network", network: null });
+              dispatch({ type: "set chainId", chainId: null });
             }
           },
         },
-        walletSelect: config(network).onboardConfig.onboardWalletSelect,
-        walletCheck: config(network).onboardConfig.walletCheck,
-        // To prevent providers from requesting block numbers every 4 seconds (see https://github.com/WalletConnect/walletconnect-monorepo/issues/357)
-        blockPollingInterval: 1000 * 60 * 60,
       });
       await onboardInstance.walletSelect();
       await onboardInstance.walletCheck();
@@ -214,17 +189,17 @@ export function useConnection() {
     } catch (error) {
       dispatch({ type: "set error", error });
     }
-  }, [dispatch, network, onboard]);
+  }, [chainId, dispatch, onboard]);
 
   const disconnect = React.useCallback(() => {
     if (!isConnected) {
       return;
     }
     onboard?.walletReset();
-    dispatch({ type: "set address", address: null });
+    dispatch({ type: "set account", account: null });
     dispatch({ type: "set provider", provider: null });
     dispatch({ type: "set signer", signer: null });
-    dispatch({ type: "set network", network: null });
+    dispatch({ type: "set chainId", chainId: null });
     dispatch({ type: "set connection status", isConnected: false });
     dispatch({ type: "set onboard", onboard: null });
   }, [dispatch, isConnected, onboard]);
@@ -232,8 +207,8 @@ export function useConnection() {
     provider,
     onboard,
     signer,
-    network,
-    address,
+    chainId,
+    account,
     error,
     isConnected,
     connect,

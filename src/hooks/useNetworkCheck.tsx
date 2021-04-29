@@ -1,10 +1,8 @@
 import { useConnection } from "../hooks";
-import { SUPPORTED_NETWORK_IDS } from "../config";
+import { isValidChainId } from "../utils/chainId";
 
-export function useNetworkCheck() {
-  const { isConnected, network } = useConnection();
+export function useNetworkCheck(): boolean {
+  const { isConnected, chainId } = useConnection();
 
-  return (
-    !isConnected || (network && SUPPORTED_NETWORK_IDS.includes(network.chainId))
-  );
+  return !isConnected || Boolean(chainId && isValidChainId(chainId));
 }

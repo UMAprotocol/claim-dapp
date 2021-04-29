@@ -8,7 +8,7 @@ import Confetto from "./Confetti";
 import Link from "./Link";
 import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
-import { useOptionsClaim, usePayouts } from "../hooks";
+import { useOptionsClaim, usePayouts, useHasClaimed } from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
 import { expiryDate, optionsName } from "../config";
 type ClaimProps = {
@@ -16,21 +16,20 @@ type ClaimProps = {
 };
 
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim: submitClaim, claims, txStatus, tx, error } = useOptionsClaim();
+  const { claim: submitClaim, txStatus, tx, error } = useOptionsClaim();
   const payouts = usePayouts();
   const logoRef = React.useRef<SVGSVGElement>(null);
-  const claim = claims && claims.length > 0 ? claims[0] : undefined;
-  const claimed = Boolean(claim?.hasClaimed);
+  const hasClaimed = useHasClaimed();
 
   return (
     <Wrapper>
       <Header>
         <div>
-          <Logo dimmed={!claimed} ref={logoRef} />
-          {claimed && <Confetto anchorRef={logoRef} />}
+          <Logo dimmed={!hasClaimed ? 1 : undefined} ref={logoRef} />
+          {hasClaimed && <Confetto anchorRef={logoRef} />}
         </div>
         <Heading level={1}>
-          {claimed
+          {hasClaimed
             ? "Your options have been claimed."
             : "Ready to claim your options?"}
         </Heading>
@@ -69,7 +68,7 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
         </Metrics>
       </Content>
       <ButtonWrapper>
-        {!claimed ? (
+        {!hasClaimed ? (
           <>
             <Button variant="secondary" onClick={onCancel}>
               Not Yet
@@ -115,7 +114,7 @@ const Metrics = tw.div`
 `;
 const Value = tw.div``;
 const Label = tw.div`text-gray capitalize`;
-const Logo = styled(UnstyledLogo)<{ dimmed: boolean }>`
+const Logo = styled(UnstyledLogo)<{ dimmed?: 1 }>`
   circle {
     fill: ${({ dimmed }) => (dimmed ? "#F29797" : "#FF4A4A")};
   }

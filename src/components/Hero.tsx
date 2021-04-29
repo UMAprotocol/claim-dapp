@@ -6,7 +6,7 @@ import {
   useModal,
   useOptionsSupply,
   useTvl,
-  useOptionsClaim,
+  useHasClaimed,
 } from "../hooks";
 import {
   parseUSLocaleNumber,
@@ -21,7 +21,6 @@ import Heading from "./Heading";
 import Modal from "./Modal";
 import Settings from "./Settings";
 import Link from "./Link";
-import Claim from "./Claim";
 import Metrics from "./Metrics";
 import { optionsName } from "../config";
 
@@ -91,32 +90,26 @@ const defaultMetrics = {
     ),
   },
 };
-
-const Hero: React.FC = () => {
+type HeroProps = {
+  onClaim: () => void;
+};
+const Hero: React.FC<HeroProps> = ({ onClaim }) => {
   const { isConnected, connect } = useConnection();
-  const {
-    modalRef: claimModalRef,
-    isOpen: isClaimOpen,
-    open: openClaim,
-    close: closeClaim,
-  } = useModal();
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
-      openClaim();
+      onClaim();
     } else {
       connect();
     }
-  }, [connect, isConnected, openClaim]);
+  }, [connect, isConnected, onClaim]);
   const {
     modalRef: settingsModalRef,
     isOpen: isSettingsOpen,
     open: openSettings,
     close: closeSettings,
   } = useModal();
-  const { claims } = useOptionsClaim();
-  const claim = claims && claims.length > 0 ? claims[0] : undefined;
-  const claimed = Boolean(claim?.hasClaimed);
-  const disableClaim = claimed && isConnected;
+  const hasClaimed = useHasClaimed();
+  const disableClaim = hasClaimed && isConnected;
 
   const { data: tvlData, maxPayout, currentPayout } = useTvl();
   const { supply } = useOptionsSupply();
@@ -184,9 +177,6 @@ const Hero: React.FC = () => {
         </CTAWrapper>
         <Metrics metrics={metrics} />
       </Wrapper>
-      <Modal ref={claimModalRef} isOpen={isClaimOpen} onClose={closeClaim}>
-        <Claim onCancel={closeClaim} />
-      </Modal>
     </MaxWidthWrapper>
   );
 };

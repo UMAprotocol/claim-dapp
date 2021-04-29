@@ -3,12 +3,13 @@ import { useQuery } from "react-query";
 
 import { useConnection } from "./useConnection";
 import { KPIOptionsToken, infuraId } from "../config";
+import { ValidChainId } from "../utils/chainId";
 
 export function useOptionsSupply() {
-  const { provider, network } = useConnection();
+  const { provider, chainId } = useConnection();
   const { data, isLoading, error } = useQuery<ethers.BigNumber>(
-    ["kpi options supply", provider?.connection, network?.chainId],
-    () => getOptionsSupply(provider, network)
+    ["kpi options supply", provider?.connection, chainId],
+    () => getOptionsSupply(provider, chainId)
   );
 
   return {
@@ -20,9 +21,9 @@ export function useOptionsSupply() {
 
 async function getOptionsSupply(
   web3Provider: ethers.providers.Web3Provider | null,
-  network: ethers.providers.Network | null
+  _chainId: ValidChainId | null
 ) {
-  const chainId = (network && network.chainId ? network.chainId : 1) as 1 | 42;
+  const chainId = _chainId ?? 1;
   const provider =
     web3Provider != null
       ? web3Provider

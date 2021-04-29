@@ -67,7 +67,7 @@ const OptionsContext = React.createContext<typeof EMPTY | TOptionsContext>(
 OptionsContext.displayName = "OptionsContext";
 
 export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
-  const { address, network, signer } = useConnection();
+  const { account, chainId, signer } = useConnection();
   const {
     claims,
     isLoading: isLoadingProof,
@@ -80,17 +80,17 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
     tx: null,
   });
 
-  // reset network state on address, or network change.
+  // reset network state on account, or network change.
   React.useEffect(() => {
     dispatch({ type: "set transaction status", txStatus: "idle" });
     dispatch({ type: "set error", error: null });
     dispatch({ type: "set transaction", tx: null });
-  }, [address, network, signer]);
+  }, [account, chainId, signer]);
 
   const claim = React.useCallback(
     async (claimIdx = 0) => {
       // check if we can actually claim options for this claimIdx.
-      if (!(claims && claims.length > claimIdx && network?.chainId && signer)) {
+      if (!(claims && claims.length > claimIdx && chainId && signer)) {
         if (!(claims && claims.length > claimIdx)) {
           dispatch({
             type: "set error",
@@ -102,7 +102,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
       // reset any erros we might have had previously
       dispatch({ type: "set error", error: null });
       const merkleDistributor = new ethers.Contract(
-        contracts.getMerkleDistributorAddress(network?.chainId as 1 | 42),
+        contracts.getMerkleDistributorAddress(chainId),
         contracts.merkleDistributorABI,
         signer
       );
@@ -112,7 +112,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
       try {
         const tx: ethers.ContractTransaction = await merkleDistributor.claim({
           windowIndex,
-          account: address,
+          account,
           accountIndex,
           amount,
           merkleProof,
@@ -132,7 +132,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
         dispatch({ type: "set error", error: error.message });
       }
     },
-    [address, claims, network?.chainId, refetch, signer]
+    [account, claims, chainId, refetch, signer]
   );
   const value = { claims, isLoadingProof, errorProof, claim, ...txState };
 

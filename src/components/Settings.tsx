@@ -25,7 +25,7 @@ type SettingsProps = {
   onComplete: () => void;
 };
 const Settings: React.FC<SettingsProps> = ({ onComplete }) => {
-  const { address, onboard, isConnected, disconnect } = useConnection();
+  const { account, onboard, isConnected, disconnect } = useConnection();
 
   const handleRemove = React.useCallback(() => {
     disconnect();
@@ -45,12 +45,12 @@ const Settings: React.FC<SettingsProps> = ({ onComplete }) => {
       </Status>
       {isConnected && (
         <Info>
-          <span>Account Name</span>
-          <span>{address}</span>
+          <span>Account</span>
+          <span>{account}</span>
         </Info>
       )}
 
-      <RemoveButton onClick={handleRemove}>Remove Address</RemoveButton>
+      <RemoveButton onClick={handleRemove}>Remove Account</RemoveButton>
     </Wrapper>
   );
 };
