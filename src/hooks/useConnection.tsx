@@ -1,217 +1,186 @@
 import React from "react";
 import { ethers } from "ethers";
-import Onboard from "bnc-onboard";
-import { API as OnboardApi, Wallet } from "bnc-onboard/dist/src/interfaces";
 
-import { onboardBaseConfig } from "../config";
-import type { ValidChainId } from "../utils/chainId";
-
-type Provider = ethers.providers.Web3Provider;
-type Address = string;
-type Signer = ethers.Signer;
-
-type ConnectionState = {
-  provider: Provider | null;
-  onboard: OnboardApi | null;
-  signer: Signer | null;
-  chainId: ValidChainId | null;
-  account: Address | null;
-  error: Error | null;
-  isConnected: boolean;
+enum ActionType {
+  CONNECT,
+  DISCONNECT,
+  UPDATE,
+  UPDATE_FROM_ERROR,
+  ERROR,
+}
+type ConnectionManagerState = {
+  provider?: ethers.providers.Web3Provider;
+  signer?: ethers.Signer;
+  account?: string;
+  connector?: any;
+  chainId?: number;
+  error?: Error;
 };
-
 type Action =
   | {
-      type: "set provider";
-      provider: Provider | null;
+      type: ActionType.CONNECT;
+      payload: ConnectionManagerState;
     }
   | {
-      type: "set onboard";
-      onboard: OnboardApi | null;
+      type: ActionType.DISCONNECT;
     }
   | {
-      type: "set signer";
-      signer: Signer | null;
+      type: ActionType.UPDATE | ActionType.UPDATE_FROM_ERROR;
+      payload: ConnectionManagerState;
     }
   | {
-      type: "set chainId";
-      chainId: ValidChainId | null;
-    }
-  | {
-      type: "set account";
-      account: Address | null;
-    }
-  | {
-      type: "set error";
-      error: Error | null;
-    }
-  | {
-      type: "set connection status";
-      isConnected: boolean;
+      type: ActionType.ERROR;
+      payload: Pick<ConnectionManagerState, "error">;
     };
 
-type ConnectionDispatch = React.Dispatch<Action>;
-type TConnectionContext = [ConnectionState, ConnectionDispatch];
-
-type WithDelegatedProps = {
-  [k: string]: unknown;
-};
-
-const EMPTY: unique symbol = Symbol();
-
-const ConnectionContext = React.createContext<
-  TConnectionContext | typeof EMPTY
->(EMPTY);
-ConnectionContext.displayName = "ConnectionContext";
-
-function connectionReducer(state: ConnectionState, action: Action) {
+function reducer(
+  state: ConnectionManagerState,
+  action: Action
+): ConnectionManagerState {
   switch (action.type) {
-    case "set provider": {
+    case ActionType.CONNECT: {
+      console.log(`Connection action called..`);
+      console.log({ state, action });
+      return { ...state, ...action.payload };
+    }
+    case ActionType.DISCONNECT: {
+      return {};
+    }
+    case ActionType.ERROR: {
+      const { error } = action.payload;
       return {
         ...state,
-        provider: action.provider,
+        error,
       };
     }
-    case "set onboard": {
+    case ActionType.UPDATE: {
+      const { provider, signer, account, chainId, connector } = action.payload;
       return {
         ...state,
-        onboard: action.onboard,
+        ...(provider ? { provider } : {}),
+        ...(signer ? { signer } : {}),
+        ...(account ? { account } : {}),
+        ...(chainId ? { chainId } : {}),
+        ...(connector ? { connector } : {}),
       };
     }
-    case "set signer": {
+    case ActionType.UPDATE_FROM_ERROR: {
+      const { provider, signer, account, chainId, connector } = action.payload;
       return {
         ...state,
-        signer: action.signer,
+        ...(provider ? { provider } : {}),
+        ...(signer ? { signer } : {}),
+        ...(account ? { account } : {}),
+        ...(chainId ? { chainId } : {}),
+        ...(connector ? { connector } : {}),
+        error: undefined,
       };
-    }
-    case "set chainId": {
-      return {
-        ...state,
-        chainId: action.chainId,
-      };
-    }
-    case "set account": {
-      return {
-        ...state,
-        account: action.account,
-      };
-    }
-    case "set error": {
-      return {
-        ...state,
-        error: action.error,
-      };
-    }
-    case "set connection status": {
-      return {
-        ...state,
-        isConnected: action.isConnected,
-      };
-    }
-    default: {
-      throw new Error(`Unsopported action type ${(action as any).type}`);
     }
   }
 }
-export const ConnectionProvider: React.FC<WithDelegatedProps> = ({
-  children,
-  ...delegated
-}) => {
-  const [connection, dispatch] = React.useReducer(connectionReducer, {
-    provider: null,
-    onboard: null,
-    signer: null,
-    chainId: null,
-    account: null,
-    error: null,
-    isConnected: false,
-  });
+
+function useConnectionManager() {
+  const [state, dispatch] = React.useReducer(reducer, {});
+
+  const { provider, signer, account, chainId, connector, error } = state;
+
+  const connect = React.useCallback((payload: ConnectionManagerState) => {
+    dispatch({
+      type: ActionType.CONNECT,
+      payload,
+    });
+  }, []);
+  const disconnect = React.useCallback(() => {
+    dispatch({ type: ActionType.DISCONNECT });
+  }, []);
+  const setError = React.useCallback((error: Error) => {
+    dispatch({ type: ActionType.ERROR, payload: { error } });
+  }, []);
+  const update = React.useCallback(
+    (update: ConnectionManagerState) => {
+      if (error) {
+        dispatch({
+          type: ActionType.UPDATE_FROM_ERROR,
+          payload: { ...update },
+        });
+        return;
+      }
+
+      dispatch({ type: ActionType.UPDATE, payload: { ...update } });
+    },
+    [error]
+  );
+
+  return {
+    provider,
+    signer,
+    account,
+    connector,
+    chainId,
+    error,
+
+    connect,
+    disconnect,
+    update,
+    setError,
+  };
+}
+
+type ConnectionState = {
+  connect: (payload: ConnectionManagerState) => void;
+  disconnect: () => void;
+  update: (update: ConnectionManagerState) => void;
+  setError: (error: Error) => void;
+  isConnected: boolean;
+} & ConnectionManagerState;
+
+export const ConnectionContext = React.createContext<
+  undefined | ConnectionState
+>(undefined);
+ConnectionContext.displayName = "ConnectionContext";
+
+export const ConnectionProvider: React.FC = ({ children }) => {
+  const {
+    provider,
+    signer,
+    account,
+    chainId,
+    connector,
+    error,
+    connect,
+    disconnect,
+    update,
+    setError,
+  } = useConnectionManager();
+
+  const isConnected = provider != null && chainId != null && account != null;
+
+  const value: ConnectionState = {
+    provider,
+    signer,
+    account,
+    chainId,
+    connector,
+    error,
+
+    connect,
+    disconnect,
+    update,
+    setError,
+
+    isConnected,
+  };
 
   return (
-    <ConnectionContext.Provider value={[connection, dispatch]} {...delegated}>
+    <ConnectionContext.Provider value={value}>
       {children}
     </ConnectionContext.Provider>
   );
 };
-
 export function useConnection() {
   const context = React.useContext(ConnectionContext);
-  if (context === EMPTY) {
-    throw new Error(`UseConnection must be used within a Connection Provider.`);
+  if (!context) {
+    throw new Error("UseConnection must be used within a <ConnectionProvider>");
   }
-
-  const [
-    { provider, onboard, signer, chainId, account, error, isConnected },
-    dispatch,
-  ] = context;
-  const connect = React.useCallback(async () => {
-    try {
-      const onboardInstance = Onboard({
-        ...onboardBaseConfig(chainId as ValidChainId),
-        subscriptions: {
-          address: (address: string) => {
-            dispatch({ type: "set account", account: address });
-          },
-          network: async (networkId) => {
-            onboard?.config({ networkId });
-            dispatch({
-              type: "set chainId",
-              chainId: networkId as ValidChainId,
-            });
-          },
-          wallet: async (wallet: Wallet) => {
-            if (wallet.provider) {
-              const ethersProvider = new ethers.providers.Web3Provider(
-                wallet.provider
-              );
-              dispatch({ type: "set provider", provider: ethersProvider });
-              dispatch({
-                type: "set signer",
-                signer: ethersProvider.getSigner(),
-              });
-              dispatch({
-                type: "set chainId",
-                chainId: (await ethersProvider.getNetwork())
-                  .chainId as ValidChainId,
-              });
-            } else {
-              dispatch({ type: "set provider", provider: null });
-              dispatch({ type: "set chainId", chainId: null });
-            }
-          },
-        },
-      });
-      await onboardInstance.walletSelect();
-      await onboardInstance.walletCheck();
-
-      dispatch({ type: "set onboard", onboard: onboardInstance });
-      dispatch({ type: "set connection status", isConnected: true });
-    } catch (error) {
-      dispatch({ type: "set error", error });
-    }
-  }, [chainId, dispatch, onboard]);
-
-  const disconnect = React.useCallback(() => {
-    if (!isConnected) {
-      return;
-    }
-    onboard?.walletReset();
-    dispatch({ type: "set account", account: null });
-    dispatch({ type: "set provider", provider: null });
-    dispatch({ type: "set signer", signer: null });
-    dispatch({ type: "set chainId", chainId: null });
-    dispatch({ type: "set connection status", isConnected: false });
-    dispatch({ type: "set onboard", onboard: null });
-  }, [dispatch, isConnected, onboard]);
-  return {
-    provider,
-    onboard,
-    signer,
-    chainId,
-    account,
-    error,
-    isConnected,
-    connect,
-    disconnect,
-  };
+  return context;
 }

@@ -4,6 +4,7 @@ import Button from "./Button";
 import UnstyledHeading from "./Heading";
 
 import { useConnection } from "../hooks";
+import { useOnboard } from "../hooks/useOnboard";
 
 type PingProps = { isConnected: boolean };
 const PingOuter = tw.div`
@@ -25,14 +26,15 @@ type SettingsProps = {
   onComplete: () => void;
 };
 const Settings: React.FC<SettingsProps> = ({ onComplete }) => {
-  const { account, onboard, isConnected, disconnect } = useConnection();
+  const { account, connector, isConnected } = useConnection();
+  const { resetOnboard } = useOnboard();
 
   const handleRemove = React.useCallback(() => {
-    disconnect();
+    resetOnboard();
     onComplete();
-  }, [disconnect, onComplete]);
+  }, [resetOnboard, onComplete]);
 
-  const walletName = onboard?.getState().wallet.name;
+  const walletName = connector?.getState().wallet.name;
 
   return (
     <Wrapper>

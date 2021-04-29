@@ -23,6 +23,7 @@ import Settings from "./Settings";
 import Link from "./Link";
 import Metrics from "./Metrics";
 import { optionsName } from "../config";
+import { useOnboard } from "../hooks/useOnboard";
 
 const MoreInfoLink = tw(Link)`
   text-xl no-underline
@@ -94,14 +95,15 @@ type HeroProps = {
   onClaim: () => void;
 };
 const Hero: React.FC<HeroProps> = ({ onClaim }) => {
-  const { isConnected, connect } = useConnection();
+  const { isConnected } = useConnection();
+  const { initOnboard } = useOnboard();
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
       onClaim();
     } else {
-      connect();
+      initOnboard();
     }
-  }, [connect, isConnected, onClaim]);
+  }, [initOnboard, isConnected, onClaim]);
   const {
     modalRef: settingsModalRef,
     isOpen: isSettingsOpen,

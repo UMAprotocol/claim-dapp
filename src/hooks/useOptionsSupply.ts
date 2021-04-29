@@ -9,7 +9,7 @@ export function useOptionsSupply() {
   const { provider, chainId } = useConnection();
   const { data, isLoading, error } = useQuery<ethers.BigNumber>(
     ["kpi options supply", provider?.connection, chainId],
-    () => getOptionsSupply(provider, chainId)
+    () => getOptionsSupply(provider, chainId as any)
   );
 
   return {
@@ -20,8 +20,8 @@ export function useOptionsSupply() {
 }
 
 async function getOptionsSupply(
-  web3Provider: ethers.providers.Web3Provider | null,
-  _chainId: ValidChainId | null
+  web3Provider?: ethers.providers.Web3Provider,
+  _chainId?: ValidChainId
 ) {
   const chainId = _chainId ?? 1;
   const provider =
