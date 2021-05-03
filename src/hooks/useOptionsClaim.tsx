@@ -102,7 +102,7 @@ export const OptionsProvider: React.FC = ({ children, ...delegated }) => {
       // reset any erros we might have had previously
       dispatch({ type: "set error", error: null });
       const merkleDistributor = new ethers.Contract(
-        contracts.getMerkleDistributorAddress(chainId),
+        contracts.getMerkleDistributorAddress(chainId as any),
         contracts.merkleDistributorABI,
         signer
       );

@@ -1,77 +1,49 @@
 import { renderHook, act } from "@testing-library/react-hooks";
-import Onboard from "bnc-onboard";
-import * as ethers from "ethers";
-import {
-  API as OnboardApi,
-  Initialization,
-} from "bnc-onboard/dist/src/interfaces";
-import EventEmitter from "events";
 
-import { useConnection, ConnectionProvider } from "../hooks";
+import { ethers } from "ethers";
 
-jest.mock("bnc-onboard");
-const mockedOnboard = Onboard as jest.Mock<Partial<OnboardApi>>;
-const mockedWalletSelect = jest.fn();
-const mockedWalletCheck = jest.fn();
+import { useConnection, ConnectionProvider } from "../hooks/useConnection";
 
-const mockProviderFn: ethers.providers.JsonRpcFetchFunc = jest.fn();
+const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+const jsonRpcFunc = (method: string, params?: Array<any>) =>
+  provider.send(method, params || []);
+const web3Provider = new ethers.providers.Web3Provider(jsonRpcFunc);
+const wallet = ethers.Wallet.createRandom();
+const randomAddress = ethers.Wallet.createRandom().address;
 
-jest
-  .spyOn(ethers.providers.Web3Provider.prototype, "getNetwork")
-  .mockImplementation(async () => {
-    return {
-      chainId: 1,
-      name: "mainnet",
-    };
-  });
-let fakeProvider: ethers.providers.Web3Provider;
-let fakeNetwork: ethers.providers.Network;
-let fakeAddress: string;
+const fakeProvider = { provider: web3Provider, signer: wallet };
 
-beforeAll(async () => {
-  fakeProvider = new ethers.providers.Web3Provider(mockProviderFn);
-  fakeNetwork = await fakeProvider.getNetwork();
-});
-const emitter = new EventEmitter();
 test("should connect to the provider and save the data", async () => {
-  mockedOnboard.mockImplementation(({ subscriptions }: Initialization) => {
-    emitter.on("onboardchange", () => {
-      subscriptions?.address && subscriptions.address(fakeAddress);
-      subscriptions?.network && subscriptions.network(fakeNetwork.chainId);
-      subscriptions?.wallet &&
-        subscriptions.wallet({
-          provider: mockProviderFn,
-          type: "injected",
-          name: "fake wallet",
-        });
-    });
-    return {
-      walletCheck: mockedWalletCheck,
-      walletSelect: mockedWalletSelect,
-    };
-  });
   const { result } = renderHook(useConnection, { wrapper: ConnectionProvider });
 
-  expect(result.current.provider).toBeNull();
-  expect(result.current.signer).toBeNull();
-  expect(result.current.network).toBeNull();
-  expect(result.current.address).toBeNull();
-  expect(result.current.error).toBeNull();
+  expect(result.current.provider).toBeUndefined();
+  expect(result.current.signer).toBeUndefined();
+  expect(result.current.chainId).toBeUndefined();
+  expect(result.current.account).toBeUndefined();
+  expect(result.current.error).toBeUndefined();
   expect(result.current.isConnected).toBe(false);
 
-  await act(async () => await result.current.connect());
-  expect(mockedOnboard).toHaveBeenCalledTimes(1);
-  expect(mockedWalletSelect).toHaveBeenCalledTimes(1);
-  expect(mockedWalletCheck).toHaveBeenCalledTimes(1);
+  await act(async () =>
+    result.current.connect({
+      provider: fakeProvider.provider,
+      signer: fakeProvider.signer,
+      chainId: (await fakeProvider.provider.getNetwork()).chainId,
+      account: await fakeProvider.signer.getAddress(),
+    })
+  );
 
-  await act(async () => {
-    await emitter.emit("onboardchange");
-  });
-
-  expect(result.current.provider).toStrictEqual(fakeProvider);
-  expect(result.current.signer).toStrictEqual(fakeProvider.getSigner());
-  expect(result.current.provider?.getNetwork).toHaveBeenCalledTimes(1);
-  expect(result.current.address).toBe(fakeAddress);
-  expect(result.current.error).toBeNull();
+  expect(result.current.provider).toStrictEqual(web3Provider);
+  expect(result.current.signer).toStrictEqual(wallet);
+  expect(result.current.chainId).toBe(1337);
   expect(result.current.isConnected).toBe(true);
+
+  act(() => {
+    result.current.update({ chainId: 1 });
+  });
+  expect(result.current.chainId).toBe(1);
+
+  act(() => {
+    result.current.update({ account: randomAddress });
+  });
+  expect(result.current.account).toBe(randomAddress);
 });
