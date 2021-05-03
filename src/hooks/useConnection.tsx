@@ -9,8 +9,7 @@ enum ActionType {
   ERROR,
 }
 type ConnectionManagerState = {
-  provider?: ethers.providers.Web3Provider;
-  signer?: ethers.Signer;
+  provider?: any;
   account?: string;
   connector?: any;
   chainId?: number;
@@ -39,8 +38,6 @@ function reducer(
 ): ConnectionManagerState {
   switch (action.type) {
     case ActionType.CONNECT: {
-      console.log(`Connection action called..`);
-      console.log({ state, action });
       return { ...state, ...action.payload };
     }
     case ActionType.DISCONNECT: {
@@ -54,22 +51,20 @@ function reducer(
       };
     }
     case ActionType.UPDATE: {
-      const { provider, signer, account, chainId, connector } = action.payload;
+      const { provider, account, chainId, connector } = action.payload;
       return {
         ...state,
         ...(provider ? { provider } : {}),
-        ...(signer ? { signer } : {}),
         ...(account ? { account } : {}),
         ...(chainId ? { chainId } : {}),
         ...(connector ? { connector } : {}),
       };
     }
     case ActionType.UPDATE_FROM_ERROR: {
-      const { provider, signer, account, chainId, connector } = action.payload;
+      const { provider, account, chainId, connector } = action.payload;
       return {
         ...state,
         ...(provider ? { provider } : {}),
-        ...(signer ? { signer } : {}),
         ...(account ? { account } : {}),
         ...(chainId ? { chainId } : {}),
         ...(connector ? { connector } : {}),
@@ -82,7 +77,7 @@ function reducer(
 function useConnectionManager() {
   const [state, dispatch] = React.useReducer(reducer, {});
 
-  const { provider, signer, account, chainId, connector, error } = state;
+  const { provider, account, chainId, connector, error } = state;
 
   const connect = React.useCallback((payload: ConnectionManagerState) => {
     dispatch({
@@ -113,7 +108,6 @@ function useConnectionManager() {
 
   return {
     provider,
-    signer,
     account,
     connector,
     chainId,
@@ -127,12 +121,14 @@ function useConnectionManager() {
 }
 
 type ConnectionState = {
+  provider?: ethers.providers.Web3Provider;
+  signer?: ethers.Signer;
   connect: (payload: ConnectionManagerState) => void;
   disconnect: () => void;
   update: (update: ConnectionManagerState) => void;
   setError: (error: Error) => void;
   isConnected: boolean;
-} & ConnectionManagerState;
+} & Omit<ConnectionManagerState, "provider">;
 
 export const ConnectionContext = React.createContext<
   undefined | ConnectionState
@@ -142,7 +138,6 @@ ConnectionContext.displayName = "ConnectionContext";
 export const ConnectionProvider: React.FC = ({ children }) => {
   const {
     provider,
-    signer,
     account,
     chainId,
     connector,
@@ -154,9 +149,13 @@ export const ConnectionProvider: React.FC = ({ children }) => {
   } = useConnectionManager();
 
   const isConnected = provider != null && chainId != null && account != null;
+  const wrappedProvider = provider
+    ? new ethers.providers.Web3Provider(provider)
+    : undefined;
+  const signer = wrappedProvider ? wrappedProvider.getSigner() : undefined;
 
   const value: ConnectionState = {
-    provider,
+    provider: wrappedProvider,
     signer,
     account,
     chainId,
