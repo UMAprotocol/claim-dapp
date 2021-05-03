@@ -8,7 +8,12 @@ import Confetto from "./Confetti";
 import Link from "./Link";
 import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
-import { useOptionsClaim, usePayouts, useHasClaimed } from "../hooks";
+import {
+  useOptions,
+  usePayouts,
+  useHasClaimed,
+  useTransactions,
+} from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
 import { expiryDate, optionsName } from "../config";
 type ClaimProps = {
@@ -16,7 +21,8 @@ type ClaimProps = {
 };
 
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim: submitClaim, txStatus, tx, error } = useOptionsClaim();
+  const { claimCallback: submitClaim, error } = useOptions();
+  const { transaction: tx, status: txStatus } = useTransactions();
   const payouts = usePayouts();
   const logoRef = React.useRef<SVGSVGElement>(null);
   const hasClaimed = useHasClaimed();

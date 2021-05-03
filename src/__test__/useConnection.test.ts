@@ -26,7 +26,6 @@ test("should connect to the provider and save the data", async () => {
   await act(async () =>
     result.current.connect({
       provider: fakeProvider.provider,
-      signer: fakeProvider.signer,
       chainId: (await fakeProvider.provider.getNetwork()).chainId,
       account: await fakeProvider.signer.getAddress(),
     })
