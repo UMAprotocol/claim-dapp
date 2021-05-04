@@ -3,7 +3,7 @@ export * from "./useProgress";
 export * from "./useCountdown";
 export * from "./useModal";
 export * from "./useTooltip";
-export * from "./useOptions";
+export * from "./useKpiOptions";
 export * from "./useTransactions";
 export * from "./useClaims";
 export * from "./useOptionsSupply";

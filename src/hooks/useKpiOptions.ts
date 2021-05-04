@@ -6,7 +6,7 @@ import { contracts } from "../config";
 import { isValidChainId } from "../utils/chainId";
 import { useTransactions } from "./useTransactions";
 
-export function useOptions() {
+export function useKpiOptions() {
   const { account, chainId, signer } = useConnection();
   const { claims, refetch: refetchClaims } = useClaims();
   const { addTransaction } = useTransactions();
@@ -40,9 +40,11 @@ export function useOptions() {
           amount,
           merkleProof,
         })
-        .then((tx: ethers.ContractTransaction) =>
-          addTransaction(tx, () => refetchClaims())
-        )
+        .then((tx: ethers.ContractTransaction) => {
+          addTransaction(tx);
+          return tx.wait();
+        })
+        .then(() => refetchClaims())
         .catch(setError);
     },
     [account, addTransaction, chainId, claims, refetchClaims, signer]

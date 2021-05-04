@@ -1,47 +1,15 @@
 import React from "react";
 import { ethers } from "ethers";
+import { useQueries, useQueryClient, UseQueryResult } from "react-query";
 
 type Transaction = ethers.providers.TransactionResponse;
-type TransactionReceipt = ethers.providers.TransactionRequest;
-type TransactionStatus = "idle" | "pending" | "resolved" | "rejected";
+type TransactionReceipt = ethers.providers.TransactionReceipt;
 
 type TransactionState = {
-  transaction?: Transaction;
-  status?: TransactionStatus;
+  transactions: Transaction[];
+  transactionQueries?: UseQueryResult<TransactionReceipt>[];
   error?: Error;
 };
-
-enum ActionType {
-  ERROR,
-  UPDATE,
-}
-
-type Action =
-  | {
-      type: ActionType.UPDATE;
-      payload: TransactionState;
-    }
-  | {
-      type: ActionType.ERROR;
-      payload: Pick<TransactionState, "error">;
-    };
-function reducer(state: TransactionState, action: Action) {
-  switch (action.type) {
-    case ActionType.UPDATE: {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    }
-    case ActionType.ERROR: {
-      const { error } = action.payload;
-      return {
-        ...state,
-        error,
-      };
-    }
-  }
-}
 
 type TransactionsManagerState = {
   addTransaction: (
@@ -49,25 +17,34 @@ type TransactionsManagerState = {
     onComplete?: (tx: TransactionReceipt) => void
   ) => void;
 } & TransactionState;
-function useTransactionsManager(): TransactionsManagerState {
-  const [state, dispatch] = React.useReducer(reducer, {});
-  const { transaction, status, error } = state;
+function useTransactionsManager() {
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+  const [error, setError] = React.useState<Error>();
+
+  const transactionQueries = useQueries(
+    transactions.map((tx) => ({
+      queryFn: () => tx.wait(),
+      queryKey: queryKeyFromHash(tx.hash),
+      // don't query confirmed transactions
+      enabled: tx.confirmations === 0,
+    }))
+  ) as UseQueryResult<TransactionReceipt, Error>[];
+
   const addTransaction = React.useCallback(
-    (tx: Transaction, onComplete?: (tx: TransactionReceipt) => void) => {
-      dispatch({
-        type: ActionType.UPDATE,
-        payload: { transaction: tx, status: "pending" },
-      });
-      tx.wait().then((txReceipt) => {
-        if (onComplete) {
-          onComplete(txReceipt);
-        }
-        dispatch({ type: ActionType.UPDATE, payload: { status: "resolved" } });
-      });
+    (tx: Transaction) => {
+      if (transactions.find((t) => t.hash === tx.hash)) {
+        setError(
+          new Error(
+            `Trying to add transaction with hash ${tx.hash} but it already exists.`
+          )
+        );
+        return;
+      }
+      setTransactions((prevTxs) => [tx, ...prevTxs]);
     },
-    []
+    [transactions]
   );
-  return { addTransaction, transaction, error, status };
+  return { transactions, transactionQueries, addTransaction, error };
 }
 
 export const TransactionContext = React.createContext<
@@ -92,4 +69,23 @@ export function useTransactions() {
     );
   }
   return context;
+}
+
+export function useLatestTransaction() {
+  const {
+    transactions: [latest],
+  } = useTransactions();
+
+  const state = useTransactionState(latest ? latest.hash : "");
+
+  return { state, transaction: latest };
+}
+
+export function useTransactionState(hash: string) {
+  const client = useQueryClient();
+  return client.getQueryState(queryKeyFromHash(hash));
+}
+
+function queryKeyFromHash(hash: string) {
+  return ["transactions", hash];
 }
