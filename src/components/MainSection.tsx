@@ -19,11 +19,16 @@ const MainSection: React.FC = () => {
     open: openClaim,
     close: closeClaim,
   } = useModal();
+  const [addressToClaim, setAddressToClaim] = React.useState<string>();
+
+  const handleAddressSubmit = React.useCallback((address: string) => {
+    setAddressToClaim(address);
+  }, []);
 
   return (
     <>
       <AccentSection>
-        <Hero onClaim={openClaim} />
+        <Hero onClaim={openClaim} onClaimAddressSubmit={handleAddressSubmit} />
       </AccentSection>
       <Section>
         <MaxWidthWrapper>
