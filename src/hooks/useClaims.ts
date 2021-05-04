@@ -16,17 +16,18 @@ export type Claim = {
   totalRewardDistributed: string;
   hasClaimed: boolean;
 };
-export function useClaims() {
-  const { account, chainId } = useConnection();
+export function useClaims(accountToClaim?: string) {
+  const { chainId: _chainId } = useConnection();
+  const chainId = _chainId ?? 1;
   const { data, isLoading, error, refetch } = useQuery<Claim[], Error>(
-    [account, chainId],
+    [accountToClaim, chainId],
     () =>
       getClaims({
-        address: ethers.utils.getAddress(account || ""),
+        address: ethers.utils.getAddress(accountToClaim || ""),
         chainId: chainId as ValidChainId,
       }),
     {
-      enabled: Boolean(chainId) && Boolean(account),
+      enabled: Boolean(chainId) && Boolean(accountToClaim),
     }
   );
 
@@ -37,10 +38,10 @@ export function useClaims() {
   return { claims: filteredClaims, isLoading, error, refetch };
 }
 
-export function useHasClaimed(address?: string) {
-  const { claims } = useClaims();
+export function useHasClaimed(accountToClaim?: string) {
+  const { claims, isLoading } = useClaims(accountToClaim);
   const claim = claims && claims[0];
-  return Boolean(claim?.hasClaimed);
+  return { hasClaimed: Boolean(claim?.hasClaimed), isLoading };
 }
 
 type getProofParams = {

@@ -3,10 +3,10 @@ import tw, { styled, theme } from "twin.macro";
 
 import {
   useConnection,
-  useModal,
   useOptionsSupply,
   useTvl,
   useHasClaimed,
+  useClaims,
   useAddressInput,
 } from "../hooks";
 import {
@@ -16,11 +16,9 @@ import {
 } from "../utils";
 import Button from "./Button";
 import { ReactComponent as Logo } from "../assets/kpi-frame.svg";
-import { Settings as SettingsIcon } from "../assets/icons";
+import { Spinner as SpinnerIcon } from "../assets/icons";
 import { MaxWidthWrapper } from "./Wrappers";
 import Heading from "./Heading";
-import Modal from "./Modal";
-import Settings from "./Settings";
 import Link from "./Link";
 import Metrics from "./Metrics";
 import { optionsName } from "../config";
@@ -95,25 +93,28 @@ const defaultMetrics = {
 type HeroProps = {
   onClaim: () => void;
   onClaimAddressSubmit: (address: string) => void;
+  accountToClaim?: string;
 };
-type ClaimStatus = "selecting" | "selected";
-const Hero: React.FC<HeroProps> = ({ onClaim, onClaimAddressSubmit }) => {
+
+const Hero: React.FC<HeroProps> = ({
+  onClaim,
+  onClaimAddressSubmit,
+  accountToClaim,
+}) => {
   const { isConnected } = useConnection();
   const { initOnboard } = useOnboard();
-  const handleClaimClick = React.useCallback(() => {
-    onClaim();
-  }, [onClaim]);
 
-  const handleConnectClick = React.useCallback(() => {
-    initOnboard();
-  }, [initOnboard]);
-  const {
-    modalRef: settingsModalRef,
-    isOpen: isSettingsOpen,
-    open: openSettings,
-    close: closeSettings,
-  } = useModal();
-  const hasClaimed = useHasClaimed();
+  const { hasClaimed, isLoading: isLoadingClaims } = useHasClaimed(
+    accountToClaim
+  );
+  const { claims } = useClaims(accountToClaim);
+  const handleCTAClick = React.useCallback(() => {
+    if (isConnected) {
+      onClaim();
+    } else {
+      initOnboard();
+    }
+  }, [isConnected, onClaim, initOnboard]);
 
   const { data: tvlData, maxPayout, currentPayout } = useTvl();
   const { supply } = useOptionsSupply();
@@ -157,19 +158,14 @@ const Hero: React.FC<HeroProps> = ({ onClaim, onClaimAddressSubmit }) => {
     },
     [updateAddress]
   );
-  const [
-    selectedAddressStatus,
-    setSelectedAddressStatus,
-  ] = React.useState<ClaimStatus>("selecting");
 
   const handleClaimAddressSubmit = React.useCallback(() => {
-    if (isValidAddress && address !== null) {
-      setSelectedAddressStatus("selected");
+    if (isValidAddress && address != null) {
       onClaimAddressSubmit(address);
     }
   }, [address, isValidAddress, onClaimAddressSubmit]);
 
-  const disableClaim = isConnected ? hasClaimed || !isValidAddress : false;
+  const disableClaim = hasClaimed || isLoadingClaims || accountToClaim == null;
 
   return (
     <MaxWidthWrapper>
@@ -198,41 +194,25 @@ const Hero: React.FC<HeroProps> = ({ onClaim, onClaimAddressSubmit }) => {
             )}
           </Label>
           <ButtonsWrapper>
-            {selectedAddressStatus === "selecting" ? (
-              <>
-                <StyledButton variant="primary" onClick={handleConnectClick}>
-                  Connect Wallet
-                </StyledButton>
-                <StyledButton
-                  variant="secondary"
-                  onClick={handleClaimAddressSubmit}
-                  disabled={!isValidAddress || !address}
-                >
-                  Check for KPI Options
-                </StyledButton>
-              </>
-            ) : (
-              <>
-                <StyledButton
-                  onClick={handleClaimClick}
-                  disabled={disableClaim}
-                >
-                  Claim Options
-                </StyledButton>
-
-                <StyledButton variant="secondary" onClick={openSettings}>
-                  Connected <SettingsIcon />
-                </StyledButton>
-              </>
-            )}
+            <StyledButton
+              onClick={handleCTAClick}
+              disabled={isConnected ? disableClaim : false}
+            >
+              {isConnected ? "Claim Options" : "Connect Wallet"}
+            </StyledButton>
+            <StyledButton
+              variant="secondary"
+              onClick={handleClaimAddressSubmit}
+              disabled={!address}
+            >
+              Check for KPI Options {isLoadingClaims && <LoadingIcon />}
+            </StyledButton>
           </ButtonsWrapper>
-          <Modal
-            ref={settingsModalRef}
-            isOpen={isSettingsOpen}
-            onClose={closeSettings}
-          >
-            <Settings onComplete={closeSettings} />
-          </Modal>
+          {hasClaimed && (
+            <ClaimErrorMsg>
+              Options for this address have already been claimed.
+            </ClaimErrorMsg>
+          )}
         </CTAWrapper>
         <Metrics metrics={metrics} />
       </Wrapper>
@@ -286,5 +266,6 @@ const Input = styled.input<
 `;
 const ErrorMsg = tw.span`
   text-primary`;
-
+const LoadingIcon = tw(SpinnerIcon)`animate-spin h-5 w-5 ml-3`;
+const ClaimErrorMsg = tw.span`text-left mt-4`;
 export default Hero;

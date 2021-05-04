@@ -11,3 +11,7 @@ export function isValidAddress(address: string): boolean {
     ? ethers.utils.isValidName(address)
     : ethers.utils.isAddress(address);
 }
+
+export function splitAddress(address: string) {
+  return `${address.slice(0, 8)}...${address.slice(-6)}`;
+}

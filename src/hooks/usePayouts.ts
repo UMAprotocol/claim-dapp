@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 import { useClaims } from "./useClaims";
 import { useTvl } from "./useTvl";
 
-export function usePayouts() {
-  const { claims } = useClaims();
+export function usePayouts(account?: string) {
+  const { claims } = useClaims(account);
   const {
     data: tvlData,
     minPayout: generalMinPayout,

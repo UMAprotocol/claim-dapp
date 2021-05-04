@@ -64,17 +64,22 @@ const defaultInfos: Record<string, InfoProps> = {
 
 type KPIOptionsProps = {
   onClaim: () => void;
+  accountToClaim?: string;
 };
-const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim }) => {
+const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
   const { isConnected } = useConnection();
 
   const { data: tvlData } = useTvl();
 
-  const { metaData, ...values } = usePayouts();
+  const { metaData, ...values } = usePayouts(accountToClaim);
 
   const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
-  const hasClaimed = useHasClaimed();
-  const disableClaim = hasClaimed && isConnected;
+  const { hasClaimed, isLoading: isLoadingClaims } = useHasClaimed(
+    accountToClaim
+  );
+  const disableClaim =
+    hasClaimed || !isConnected || isLoadingClaims || accountToClaim == null;
+
   const handleClick = React.useCallback(() => {
     onClaim();
   }, [onClaim]);
@@ -86,10 +91,7 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim }) => {
       <Content>
         <ContentHeader>
           <OptionName>uTVL-0621</OptionName>
-          <ClaimButton
-            onClick={handleClick}
-            disabled={!isConnected || disableClaim}
-          >
+          <ClaimButton onClick={handleClick} disabled={disableClaim}>
             Claim Options
           </ClaimButton>
         </ContentHeader>
