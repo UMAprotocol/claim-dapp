@@ -73,19 +73,19 @@ export function useTransactions() {
 
 export function useLatestTransaction() {
   const {
-    transactions: [latest],
+    transactions: [latest = {} as Transaction],
   } = useTransactions();
 
-  const state = useTransactionState(latest ? latest.hash : "");
+  const state = useTransactionState(latest.hash);
 
   return { state, transaction: latest };
 }
 
-export function useTransactionState(hash: string) {
+export function useTransactionState(hash?: string) {
   const client = useQueryClient();
   return client.getQueryState(queryKeyFromHash(hash));
 }
 
-function queryKeyFromHash(hash: string) {
+function queryKeyFromHash(hash?: string) {
   return ["transactions", hash];
 }
