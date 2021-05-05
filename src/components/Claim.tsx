@@ -8,7 +8,12 @@ import Confetto from "./Confetti";
 import Link from "./Link";
 import { Spinner, ExternalLink } from "../assets/icons";
 import { ReactComponent as UnstyledLogo } from "../assets/kpi-frame.svg";
-import { useOptionsClaim, usePayouts, useHasClaimed } from "../hooks";
+import {
+  useKpiOptions,
+  usePayouts,
+  useHasClaimed,
+  useLatestTransaction,
+} from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
 import { expiryDate, optionsName } from "../config";
 type ClaimProps = {
@@ -16,7 +21,8 @@ type ClaimProps = {
 };
 
 const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claim: submitClaim, txStatus, tx, error } = useOptionsClaim();
+  const { claimCallback: submitClaim, error } = useKpiOptions();
+  const { transaction: tx, state: txState } = useLatestTransaction();
   const payouts = usePayouts();
   const logoRef = React.useRef<SVGSVGElement>(null);
   const hasClaimed = useHasClaimed();
@@ -74,7 +80,7 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
               Not Yet
             </Button>
 
-            {txStatus === "pending" ? (
+            {txState?.status === "loading" ? (
               <Button>
                 Claiming... <LoadingIcon />
               </Button>
@@ -86,7 +92,7 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
           <Button onClick={onCancel}>Done</Button>
         )}
       </ButtonWrapper>
-      {tx && tx.hash && (
+      {tx && tx?.hash && (
         <EtherscanLink
           href={etherscanUrlFromTx(tx as any)}
           target="_blank"
@@ -95,7 +101,7 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
           View on Etherscan <LinkIcon />
         </EtherscanLink>
       )}
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      {error && <ErrorMessage>{error.message}</ErrorMessage>}
     </Wrapper>
   );
 };

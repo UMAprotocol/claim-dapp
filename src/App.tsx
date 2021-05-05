@@ -9,7 +9,7 @@ import {
   Footer,
   NetworkAlert,
 } from "./components";
-import { ConnectionProvider, OptionsProvider } from "./hooks";
+import { ConnectionProvider, TransactionsProvider } from "./hooks";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +18,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConnectionProvider>
         <NetworkAlert />
-        <OptionsProvider>
+        <TransactionsProvider>
           <Navbar />
           <main>
             <MainSection />
@@ -29,7 +29,7 @@ function App() {
               <Footer />
             </Section>
           </main>
-        </OptionsProvider>
+        </TransactionsProvider>
       </ConnectionProvider>
     </QueryClientProvider>
   );
