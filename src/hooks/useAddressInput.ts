@@ -8,13 +8,10 @@ export function useAddressInput() {
   const [address, setAddress] = React.useState(account ? account : "");
   const prevAddress = React.useRef(address);
 
-  const updateAddress = React.useCallback(
-    (newAddress: string) => {
-      prevAddress.current = address;
-      setAddress(newAddress);
-    },
-    [address]
-  );
+  const updateAddress = (newAddress: string) => {
+    prevAddress.current = address;
+    setAddress(newAddress);
+  };
 
   React.useEffect(() => {
     if (!account) return;

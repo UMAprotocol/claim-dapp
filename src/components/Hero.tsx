@@ -6,8 +6,8 @@ import {
   useOptionsSupply,
   useTvl,
   useHasClaimed,
-  useClaims,
   useAddressInput,
+  usePayouts,
 } from "../hooks";
 import {
   parseUSLocaleNumber,
@@ -107,7 +107,7 @@ const Hero: React.FC<HeroProps> = ({
   const { hasClaimed, isLoading: isLoadingClaims } = useHasClaimed(
     accountToClaim
   );
-  const { claims } = useClaims(accountToClaim);
+
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
       onClaim();
@@ -119,7 +119,7 @@ const Hero: React.FC<HeroProps> = ({
   const { data: tvlData, maxPayout, currentPayout } = useTvl();
   const { supply } = useOptionsSupply();
   const [metrics, setMetrics] = React.useState(Object.values(defaultMetrics));
-
+  const { quantity } = usePayouts(accountToClaim);
   const currentTvl = tvlData?.currentTvl;
   React.useEffect(() => {
     const tvlInMilions = currentTvl
@@ -160,12 +160,21 @@ const Hero: React.FC<HeroProps> = ({
   );
 
   const handleClaimAddressSubmit = React.useCallback(() => {
-    if (isValidAddress && address != null) {
+    if (isValidAddress && Boolean(address)) {
       onClaimAddressSubmit(address);
     }
   }, [address, isValidAddress, onClaimAddressSubmit]);
 
-  const disableClaim = hasClaimed || isLoadingClaims || accountToClaim == null;
+  const disableClaim =
+    hasClaimed || isLoadingClaims || accountToClaim == null || quantity === 0;
+  let claimMsg;
+  if (hasClaimed) {
+    claimMsg = "Options for this address have already been claimed.";
+  } else if (quantity === 0 && accountToClaim != null) {
+    claimMsg = "There are no options to claim for this address.";
+  } else {
+    claimMsg = undefined;
+  }
 
   return (
     <MaxWidthWrapper>
@@ -178,16 +187,23 @@ const Hero: React.FC<HeroProps> = ({
           <Subtitle>
             The more UMA's TVL grows the more the KPI Options are worth!
           </Subtitle>
+          <OptionsBadge>
+            <h3>KPI Options breakdown</h3>
+            <div>
+              {quantity} {optionsName}
+            </div>
+          </OptionsBadge>
           <Label>
             <InputTitle level={3}>
               Check if an address has KPI Options
             </InputTitle>
             <Input
-              placeholder="0x67C6Cf5288E5D8Bc474126949B3A50Cfe5512AF9"
+              placeholder="Your Address here"
               type="text"
               value={address}
               onChange={handleInputChange}
               isValid={isValidAddress}
+              disabled={!isConnected}
             />
             {!isValidAddress && (
               <ErrorMsg>That doesn't look like a valid address...</ErrorMsg>
@@ -200,19 +216,17 @@ const Hero: React.FC<HeroProps> = ({
             >
               {isConnected ? "Claim Options" : "Connect Wallet"}
             </StyledButton>
-            <StyledButton
-              variant="secondary"
-              onClick={handleClaimAddressSubmit}
-              disabled={!address}
-            >
-              Check for KPI Options {isLoadingClaims && <LoadingIcon />}
-            </StyledButton>
+            {isConnected && (
+              <StyledButton
+                variant="secondary"
+                onClick={handleClaimAddressSubmit}
+                disabled={!address}
+              >
+                Check for KPI Options {isLoadingClaims && <LoadingIcon />}
+              </StyledButton>
+            )}
           </ButtonsWrapper>
-          {hasClaimed && (
-            <ClaimErrorMsg>
-              Options for this address have already been claimed.
-            </ClaimErrorMsg>
-          )}
+          {claimMsg && <ClaimErrorMsg>{claimMsg}</ClaimErrorMsg>}
         </CTAWrapper>
         <Metrics metrics={metrics} />
       </Wrapper>
@@ -241,10 +255,18 @@ const ButtonsWrapper = styled.div`
 const StyledButton = styled(Button)`
   padding: 6px 0;
   flex: 1;
+  max-width: 300px;
   ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
+const OptionsBadge = styled.div`
+  ${tw`w-full mx-auto relative mt-8 mb-2 p-2 rounded md:(mt-12 mb-8 px-4 pt-4 pb-3 rounded-lg) bg-black text-white`}
+  max-width: 500px;
+  & > div {
+    ${tw`text-xl text-secondary md:(text-3xl mt-4)`}
+  }
+`;
 const Label = styled.label`
-  ${tw`w-full mx-auto relative mt-8 mb-2 md:(mt-12 mb-8) `}
+  ${tw`w-full mx-auto relative mt-4 mb-2 md:(mt-4 mb-8) `}
   max-width: 500px;
 `;
 const InputTitle = tw(Heading)`
@@ -253,7 +275,7 @@ const InputTitle = tw(Heading)`
 const Input = styled.input<
   React.HTMLAttributes<HTMLInputElement> & { isValid: boolean }
 >`
-  ${tw`block bg-transparent mx-auto w-full placeholder-gray-500 rounded p-2 text-lg md:(rounded-lg px-2 pt-4 pb-3 text-xl)`};
+  ${tw`block bg-transparent mx-auto w-full placeholder-gray-500 placeholder-opacity-50 rounded p-2 text-lg md:(rounded-lg px-2 pt-4 pb-3 text-xl)`};
   outline-offset: 2px;
   border-width: 2px;
   border-style: solid;

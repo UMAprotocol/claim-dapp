@@ -15,8 +15,6 @@ export function useKpiOptions(accountToClaim?: string) {
   const claimCallback = React.useCallback(
     async (claimIdx = 0) => {
       if (!chainId || !signer || !isValidChainId(chainId) || !accountToClaim) {
-        console.log(`here`);
-        console.log({ chainId, signer, accountToClaim });
         return;
       }
       // check if we can claim options for this claimIdx.
