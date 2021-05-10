@@ -194,16 +194,13 @@ const Hero: React.FC<HeroProps> = ({
             </div>
           </OptionsBadge>
           <Label>
-            <InputTitle level={3}>
-              Check if an address has KPI Options
-            </InputTitle>
+            <InputTitle level={3}>Recipient</InputTitle>
             <Input
               placeholder="Your Address here"
               type="text"
               value={address}
               onChange={handleInputChange}
               isValid={isValidAddress}
-              disabled={!isConnected}
             />
             {!isValidAddress && (
               <ErrorMsg>That doesn't look like a valid address...</ErrorMsg>
