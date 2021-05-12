@@ -104,9 +104,8 @@ const Hero: React.FC<HeroProps> = ({
   const { isConnected } = useConnection();
   const { initOnboard } = useOnboard();
 
-  const { hasClaimed, isLoading: isLoadingClaims } = useHasClaimed(
-    accountToClaim
-  );
+  const { hasClaimed, isLoading: isLoadingClaims } =
+    useHasClaimed(accountToClaim);
 
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
@@ -170,7 +169,7 @@ const Hero: React.FC<HeroProps> = ({
   let claimMsg;
   if (hasClaimed) {
     claimMsg = "Options for this address have already been claimed.";
-  } else if (quantity === 0 && accountToClaim != null) {
+  } else if (quantity === 0 && accountToClaim != null && !isLoadingClaims) {
     claimMsg = "There are no options to claim for this address.";
   } else {
     claimMsg = undefined;
@@ -201,6 +200,7 @@ const Hero: React.FC<HeroProps> = ({
               value={address}
               onChange={handleInputChange}
               isValid={isValidAddress}
+              disabled={!isConnected}
             />
             {!isValidAddress && (
               <ErrorMsg>That doesn't look like a valid address...</ErrorMsg>
@@ -272,7 +272,7 @@ const InputTitle = tw(Heading)`
 const Input = styled.input<
   React.HTMLAttributes<HTMLInputElement> & { isValid: boolean }
 >`
-  ${tw`block bg-transparent mx-auto w-full placeholder-gray-500 placeholder-opacity-50 rounded p-2 text-lg md:(rounded-lg px-2 pt-4 pb-3 text-xl)`};
+  ${tw`block bg-transparent mx-auto w-full placeholder-gray-500 placeholder-opacity-50 rounded p-2 text-lg md:(rounded-lg px-2 pt-4 pb-3 text-xl) disabled:(border-gray-500 cursor-not-allowed)`};
   outline-offset: 2px;
   border-width: 2px;
   border-style: solid;

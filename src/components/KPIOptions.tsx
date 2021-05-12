@@ -70,15 +70,17 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
   const { isConnected } = useConnection();
 
   const { data: tvlData } = useTvl();
-
   const { metaData, ...values } = usePayouts(accountToClaim);
 
   const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
-  const { hasClaimed, isLoading: isLoadingClaims } = useHasClaimed(
-    accountToClaim
-  );
+  const { hasClaimed, isLoading: isLoadingClaims } =
+    useHasClaimed(accountToClaim);
   const disableClaim =
-    hasClaimed || !isConnected || isLoadingClaims || accountToClaim == null;
+    hasClaimed ||
+    !isConnected ||
+    isLoadingClaims ||
+    accountToClaim == null ||
+    values.quantity === 0;
 
   const handleClick = React.useCallback(() => {
     onClaim();
