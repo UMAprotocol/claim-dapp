@@ -10,7 +10,7 @@ import OptionsList from "./OptionsList";
 
 import Claim from "./Claim";
 
-import { useConnection, useModal } from "../hooks";
+import { useModal } from "../hooks";
 
 const MainSection: React.FC = () => {
   const {
@@ -19,23 +19,34 @@ const MainSection: React.FC = () => {
     open: openClaim,
     close: closeClaim,
   } = useModal();
+  const [accountToClaim, setAccountToClaim] = React.useState<string>();
+
+  const handleAddressSubmit = React.useCallback((address: string) => {
+    setAccountToClaim(address);
+  }, []);
 
   return (
     <>
       <AccentSection>
-        <Hero onClaim={openClaim} />
+        <Hero
+          onClaim={openClaim}
+          onClaimAddressSubmit={handleAddressSubmit}
+          accountToClaim={accountToClaim}
+        />
       </AccentSection>
       <Section>
         <MaxWidthWrapper>
           <OptionsWrapper>
-            <KPIOptions onClaim={openClaim} />
+            <KPIOptions onClaim={openClaim} accountToClaim={accountToClaim} />
             <OptionsList />
           </OptionsWrapper>
         </MaxWidthWrapper>
       </Section>
-      <Modal ref={claimModalRef} isOpen={isClaimOpen} onClose={closeClaim}>
-        <Claim onCancel={closeClaim} />
-      </Modal>
+      {accountToClaim && (
+        <Modal ref={claimModalRef} isOpen={isClaimOpen} onClose={closeClaim}>
+          <Claim onCancel={closeClaim} accountToClaim={accountToClaim} />
+        </Modal>
+      )}
     </>
   );
 };

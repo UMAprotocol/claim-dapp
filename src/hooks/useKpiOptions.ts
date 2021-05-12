@@ -6,15 +6,15 @@ import { contracts } from "../config";
 import { isValidChainId } from "../utils/chainId";
 import { useTransactions } from "./useTransactions";
 
-export function useKpiOptions() {
-  const { account, chainId, signer } = useConnection();
-  const { claims, refetch: refetchClaims } = useClaims();
+export function useKpiOptions(accountToClaim?: string) {
+  const { chainId, signer } = useConnection();
+  const { claims, refetch: refetchClaims } = useClaims(accountToClaim);
   const { addTransaction } = useTransactions();
   const [error, setError] = React.useState<Error>();
 
   const claimCallback = React.useCallback(
     async (claimIdx = 0) => {
-      if (!chainId || !signer || !isValidChainId(chainId)) {
+      if (!chainId || !signer || !isValidChainId(chainId) || !accountToClaim) {
         return;
       }
       // check if we can claim options for this claimIdx.
@@ -35,7 +35,7 @@ export function useKpiOptions() {
       merkleDistributor
         .claim({
           windowIndex,
-          account,
+          account: accountToClaim,
           accountIndex,
           amount,
           merkleProof,
@@ -47,7 +47,7 @@ export function useKpiOptions() {
         .then(() => refetchClaims())
         .catch(setError);
     },
-    [account, addTransaction, chainId, claims, refetchClaims, signer]
+    [accountToClaim, addTransaction, chainId, claims, refetchClaims, signer]
   );
   return { claimCallback, error };
 }

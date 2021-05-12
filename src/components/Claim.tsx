@@ -15,17 +15,19 @@ import {
   useLatestTransaction,
 } from "../hooks";
 import { etherscanUrlFromTx } from "../utils";
+import { splitAddress } from "../utils/address";
 import { expiryDate, optionsName } from "../config";
 type ClaimProps = {
   onCancel?: () => void;
+  accountToClaim: string;
 };
 
-const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
-  const { claimCallback: submitClaim, error } = useKpiOptions();
+const Claim: React.FC<ClaimProps> = ({ onCancel, accountToClaim }) => {
+  const { claimCallback: submitClaim, error } = useKpiOptions(accountToClaim);
   const { transaction: tx, state: txState } = useLatestTransaction();
-  const payouts = usePayouts();
+  const payouts = usePayouts(accountToClaim);
   const logoRef = React.useRef<SVGSVGElement>(null);
-  const hasClaimed = useHasClaimed();
+  const { hasClaimed } = useHasClaimed(accountToClaim);
 
   return (
     <Wrapper>
@@ -70,6 +72,10 @@ const Claim: React.FC<ClaimProps> = ({ onCancel }) => {
             <Value>
               {payouts?.maxPayout ?? "-"} <Unit>UMA</Unit>
             </Value>
+          </div>
+          <div>
+            <Label>Account</Label>
+            <Value>{splitAddress(accountToClaim)}</Value>
           </div>
         </Metrics>
       </Content>

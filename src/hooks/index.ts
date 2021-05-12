@@ -9,3 +9,4 @@ export * from "./useClaims";
 export * from "./useOptionsSupply";
 export * from "./useTvl";
 export * from "./usePayouts";
+export * from "./useAddressInput";

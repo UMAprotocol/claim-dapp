@@ -115,7 +115,7 @@ function formatMillions(n: number) {
   // Dealing with Billions
   if (n >= 1000) {
     formattedN = n / 1000;
-    postfix = "Billions";
+    postfix = "Billion";
   } else {
     formattedN = n;
     postfix = "Million";

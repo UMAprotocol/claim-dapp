@@ -1,12 +1,13 @@
 import React from "react";
-import tw, { styled } from "twin.macro";
+import tw, { styled, theme } from "twin.macro";
 
 import {
   useConnection,
-  useModal,
   useOptionsSupply,
   useTvl,
   useHasClaimed,
+  useAddressInput,
+  usePayouts,
 } from "../hooks";
 import {
   parseUSLocaleNumber,
@@ -15,11 +16,9 @@ import {
 } from "../utils";
 import Button from "./Button";
 import { ReactComponent as Logo } from "../assets/kpi-frame.svg";
-import { Settings as SettingsIcon } from "../assets/icons";
+import { Spinner as SpinnerIcon } from "../assets/icons";
 import { MaxWidthWrapper } from "./Wrappers";
 import Heading from "./Heading";
-import Modal from "./Modal";
-import Settings from "./Settings";
 import Link from "./Link";
 import Metrics from "./Metrics";
 import { optionsName } from "../config";
@@ -93,30 +92,33 @@ const defaultMetrics = {
 };
 type HeroProps = {
   onClaim: () => void;
+  onClaimAddressSubmit: (address: string) => void;
+  accountToClaim?: string;
 };
-const Hero: React.FC<HeroProps> = ({ onClaim }) => {
+
+const Hero: React.FC<HeroProps> = ({
+  onClaim,
+  onClaimAddressSubmit,
+  accountToClaim,
+}) => {
   const { isConnected } = useConnection();
   const { initOnboard } = useOnboard();
+
+  const { hasClaimed, isLoading: isLoadingClaims } =
+    useHasClaimed(accountToClaim);
+
   const handleCTAClick = React.useCallback(() => {
     if (isConnected) {
       onClaim();
     } else {
       initOnboard();
     }
-  }, [initOnboard, isConnected, onClaim]);
-  const {
-    modalRef: settingsModalRef,
-    isOpen: isSettingsOpen,
-    open: openSettings,
-    close: closeSettings,
-  } = useModal();
-  const hasClaimed = useHasClaimed();
-  const disableClaim = hasClaimed && isConnected;
+  }, [isConnected, onClaim, initOnboard]);
 
   const { data: tvlData, maxPayout, currentPayout } = useTvl();
   const { supply } = useOptionsSupply();
   const [metrics, setMetrics] = React.useState(Object.values(defaultMetrics));
-
+  const { quantity } = usePayouts(accountToClaim);
   const currentTvl = tvlData?.currentTvl;
   React.useEffect(() => {
     const tvlInMilions = currentTvl
@@ -146,6 +148,33 @@ const Hero: React.FC<HeroProps> = ({ onClaim }) => {
     const newMetrics = updateDefaultObject(defaultMetrics, freshMetrics) as any;
     setMetrics(Object.values(newMetrics));
   }, [currentPayout, currentTvl, maxPayout, supply]);
+
+  // handle the input
+  const { address, updateAddress, isValid: isValidAddress } = useAddressInput();
+  const handleInputChange = React.useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      updateAddress(evt.target.value);
+    },
+    [updateAddress]
+  );
+
+  const handleClaimAddressSubmit = React.useCallback(() => {
+    if (isValidAddress && Boolean(address)) {
+      onClaimAddressSubmit(address);
+    }
+  }, [address, isValidAddress, onClaimAddressSubmit]);
+
+  const disableClaim =
+    hasClaimed || isLoadingClaims || accountToClaim == null || quantity === 0;
+  let claimMsg;
+  if (hasClaimed) {
+    claimMsg = "Options for this address have already been claimed.";
+  } else if (quantity === 0 && accountToClaim != null && !isLoadingClaims) {
+    claimMsg = "There are no options to claim for this address.";
+  } else {
+    claimMsg = undefined;
+  }
+
   return (
     <MaxWidthWrapper>
       <Wrapper>
@@ -157,25 +186,44 @@ const Hero: React.FC<HeroProps> = ({ onClaim }) => {
           <Subtitle>
             The more UMA's TVL grows the more the KPI Options are worth!
           </Subtitle>
+          <OptionsBadge>
+            <h3>KPI Options breakdown</h3>
+            <div>
+              {quantity} {optionsName}
+            </div>
+          </OptionsBadge>
+          <Label>
+            <InputTitle level={3}>Recipient</InputTitle>
+            <Input
+              placeholder="Your Address here"
+              type="text"
+              value={address}
+              onChange={handleInputChange}
+              isValid={isValidAddress}
+              disabled={!isConnected}
+            />
+            {!isValidAddress && (
+              <ErrorMsg>That doesn't look like a valid address...</ErrorMsg>
+            )}
+          </Label>
           <ButtonsWrapper>
-            <StyledButton onClick={handleCTAClick} disabled={disableClaim}>
-              {isConnected
-                ? "Claim Options"
-                : "Connect Wallet to Claim Options"}
+            <StyledButton
+              onClick={handleCTAClick}
+              disabled={isConnected ? disableClaim : false}
+            >
+              {isConnected ? "Claim Options" : "Connect Wallet"}
             </StyledButton>
             {isConnected && (
-              <StyledButton variant="secondary" onClick={openSettings}>
-                Connected <SettingsIcon />
+              <StyledButton
+                variant="secondary"
+                onClick={handleClaimAddressSubmit}
+                disabled={!address}
+              >
+                Check for KPI Options {isLoadingClaims && <LoadingIcon />}
               </StyledButton>
             )}
           </ButtonsWrapper>
-          <Modal
-            ref={settingsModalRef}
-            isOpen={isSettingsOpen}
-            onClose={closeSettings}
-          >
-            <Settings onComplete={closeSettings} />
-          </Modal>
+          {claimMsg && <ClaimErrorMsg>{claimMsg}</ClaimErrorMsg>}
         </CTAWrapper>
         <Metrics metrics={metrics} />
       </Wrapper>
@@ -196,13 +244,47 @@ const Subtitle = tw.span`text-xl leading-relaxed`;
 const ButtonsWrapper = styled.div`
   ${tw`w-full flex justify-center items-center`};
   margin-top: 10px;
-  > * + * {
+  max-width: 500px;
+  & > * + * {
     margin-left: 10px;
   }
 `;
 const StyledButton = styled(Button)`
-  padding: 6px 30px;
+  padding: 6px 0;
+  flex: 1;
+  max-width: 300px;
   ${tw`disabled:opacity-75 disabled:cursor-not-allowed`}
 `;
-
+const OptionsBadge = styled.div`
+  ${tw`w-full mx-auto relative mt-8 mb-2 p-2 rounded md:(mt-12 mb-8 px-4 pt-4 pb-3 rounded-lg) bg-black text-white`}
+  max-width: 500px;
+  & > div {
+    ${tw`text-xl text-secondary md:(text-3xl mt-4)`}
+  }
+`;
+const Label = styled.label`
+  ${tw`w-full mx-auto relative mt-4 mb-2 md:(mt-4 mb-8) `}
+  max-width: 500px;
+`;
+const InputTitle = tw(Heading)`
+  text-lg md:(text-xl mb-2)
+`;
+const Input = styled.input<
+  React.HTMLAttributes<HTMLInputElement> & { isValid: boolean }
+>`
+  ${tw`block bg-transparent mx-auto w-full placeholder-gray-500 placeholder-opacity-50 rounded p-2 text-lg md:(rounded-lg px-2 pt-4 pb-3 text-xl) disabled:(border-gray-500 cursor-not-allowed)`};
+  outline-offset: 2px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: ${(p) =>
+    !p.isValid ? theme`colors.primary` : theme`colors.black`};
+  @media (min-width: ${theme`screens.md`}) {
+    outline-offset: 6px;
+    border-width: 3px;
+  }
+`;
+const ErrorMsg = tw.span`
+  text-primary`;
+const LoadingIcon = tw(SpinnerIcon)`animate-spin h-5 w-5 ml-3`;
+const ClaimErrorMsg = tw.span`text-left mt-4`;
 export default Hero;
