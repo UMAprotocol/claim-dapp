@@ -17,7 +17,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@uma/core": "^2.1.0",
+    "@uma/core": "^2.3.0",
     "autoprefixer": "^9",
     "bnc-onboard": "^1.19.2",
     "ethers": "^5.0.31",
@@ -37,9 +37,12 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test": "craco test",
+    "test": "craco test --env=./custom-jest-env.js",
     "eject": "react-scripts eject",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx . --color"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx . --color",
+    "hardhat": "TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat",
+    "start-node": "yarn hardhat node",
+    "deploy-emp": "yarn hardhat --network localhost deployEmp"
   },
   "eslintConfig": {
     "extends": [
@@ -69,5 +72,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "hardhat": "^2.3.0",
+    "ts-node": "^10.0.0"
   }
 }

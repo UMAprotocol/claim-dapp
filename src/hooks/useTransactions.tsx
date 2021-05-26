@@ -2,8 +2,12 @@ import React from "react";
 import { ethers } from "ethers";
 import { useQueries, useQueryClient, UseQueryResult } from "react-query";
 
-type Transaction = ethers.providers.TransactionResponse;
+type TransactionMetaData = {
+  label?: string;
+};
+type Transaction = ethers.providers.TransactionResponse & TransactionMetaData;
 type TransactionReceipt = ethers.providers.TransactionReceipt;
+type TransactionStatus = "idle" | "pending" | "resolved" | "rejected";
 
 type TransactionState = {
   transactions: Transaction[];
@@ -47,9 +51,8 @@ function useTransactionsManager() {
   return { transactions, transactionQueries, addTransaction, error };
 }
 
-export const TransactionContext = React.createContext<
-  TransactionsManagerState | undefined
->(undefined);
+export const TransactionContext =
+  React.createContext<TransactionsManagerState | undefined>(undefined);
 TransactionContext.displayName = "TransactionContext";
 
 export const TransactionsProvider: React.FC = ({ children }) => {

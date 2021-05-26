@@ -1,5 +1,4 @@
 import merkleDistributor from "@uma/core/build/contracts/MerkleDistributor.json";
-import ERC20 from "@uma/core/build/contracts/ERC20.json";
 import { Initialization } from "bnc-onboard/dist/src/interfaces";
 
 import type { ChainId, ValidChainId } from "./utils/chainId";
@@ -103,28 +102,21 @@ export const contracts = {
   getMerkleDistributorAddress,
 };
 
-export const KPIOptionsToken = {
-  abi: ERC20.abi,
-  address: (chainId: ValidChainId) => {
-    switch (chainId) {
-      case 1: {
-        return process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || "";
-      }
-      case 42: {
-        return process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "";
-      }
-      case 1337: {
-        return (
-          // if we haven't set the local address, assume we're mainnet forking
-          process.env.REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS ||
-          process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS ||
-          ""
-        );
-      }
-    }
+export const ADDRESSES: Record<number, { [k: string]: string }> = {
+  1: {
+    emp: process.env.REACT_APP_PUBLIC_MAINNET_KPI_EMP || "",
+    kpiOptionsToken:
+      process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || "",
+  },
+  42: {
+    emp: "",
+    kpiOptionsToken: process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "",
+  },
+  1337: {
+    emp: process.env.REACT_APP_PUBLIC_LOCAL_KPI_EMP || "",
+    kpiOptionsToken: process.env.REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS || "",
   },
 };
-
 export const currentWindowIndex = Number(
   process.env.REACT_APP_PUBLIC_WINDOW_INDEX
 );
@@ -137,3 +129,18 @@ export const URLS = {
     process.env.REACT_APP_PUBLIC_MERKLE_PROOF_HELPER ||
     "https://api.umaproject.org/get-claims",
 };
+
+export const expirationTvl = +(
+  process.env.REACT_APP_PUBLIC_EXPIRATION_TVL ?? 200_000_000
+);
+
+const maxPayout = 2;
+const minPayout = 0.1;
+export const expirationPayout = Math.max(
+  minPayout,
+  Math.min(maxPayout, expirationTvl / 10 ** 9)
+).toFixed(3);
+
+export const hasExpired =
+  Boolean(process.env.REACT_APP_PUBLIC_HAS_EXPIRED) ??
+  Date.now() > new Date(expiryDate).getTime();

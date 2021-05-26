@@ -1,17 +1,22 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 
-import { ethers } from "ethers";
-
+import { network, ethers } from "hardhat";
+import "@nomiclabs/hardhat-ethers";
 import { useConnection, ConnectionProvider } from "../hooks/useConnection";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
+const provider = network.provider;
 const jsonRpcFunc = (method: string, params?: Array<any>) =>
   provider.send(method, params || []);
 const web3Provider = new ethers.providers.Web3Provider(jsonRpcFunc);
-const wallet = ethers.Wallet.createRandom();
-const randomAddress = ethers.Wallet.createRandom().address;
 
-const fakeProvider = { provider: web3Provider, signer: wallet };
+let fakeSigner: SignerWithAddress;
+let randomAddress: string;
+beforeAll(async () => {
+  const [account, secondAccount] = await ethers.getSigners();
+  fakeSigner = account;
+  randomAddress = secondAccount.address;
+});
 
 test("should connect to the provider and save the data", async () => {
   const { result } = renderHook(useConnection, { wrapper: ConnectionProvider });
@@ -25,15 +30,16 @@ test("should connect to the provider and save the data", async () => {
 
   await act(async () =>
     result.current.connect({
-      provider: fakeProvider.provider,
-      chainId: (await fakeProvider.provider.getNetwork()).chainId,
-      account: await fakeProvider.signer.getAddress(),
+      provider: web3Provider,
+      chainId: (await web3Provider.getNetwork()).chainId,
+      account: await fakeSigner.getAddress(),
     })
   );
 
-  expect(result.current.provider).toStrictEqual(web3Provider);
-  expect(result.current.signer).toStrictEqual(wallet);
-  expect(result.current.chainId).toBe(1337);
+  expect(result.current.account).toStrictEqual(fakeSigner.address);
+  expect(result.current.chainId).toBe(
+    (await web3Provider.getNetwork()).chainId
+  );
   expect(result.current.isConnected).toBe(true);
 
   act(() => {

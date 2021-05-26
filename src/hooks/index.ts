@@ -10,3 +10,6 @@ export * from "./useOptionsSupply";
 export * from "./useTvl";
 export * from "./usePayouts";
 export * from "./useAddressInput";
+export * from "./useOnboard";
+export * from "./useRedeem";
+export * from "./useOptionsBalance";

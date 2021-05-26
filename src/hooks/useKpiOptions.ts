@@ -28,9 +28,12 @@ export function useKpiOptions(accountToClaim?: string) {
         contracts.merkleDistributorABI,
         signer
       );
-      const { windowIndex, amount, proof: merkleProof, accountIndex } = claims[
-        claimIdx
-      ];
+      const {
+        windowIndex,
+        amount,
+        proof: merkleProof,
+        accountIndex,
+      } = claims[claimIdx];
 
       merkleDistributor
         .claim({
