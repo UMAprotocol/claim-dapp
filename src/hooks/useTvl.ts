@@ -15,6 +15,7 @@ export function useTvl() {
     minPayout,
     Math.min(maxPayout, tvl / 10 ** 9)
   ).toFixed(3);
+
   return {
     data,
     isLoading,

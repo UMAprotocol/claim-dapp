@@ -1,7 +1,7 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 import { useProgress, useTooltip } from "../hooks";
-import { formatUSLocaleNumber, getPageCoords } from "../utils";
+import { formatMillions, getPageCoords } from "../utils";
 import { Info as Icon } from "../assets/icons";
 
 type ProgressBarProps = {
@@ -108,17 +108,3 @@ const Bar = styled.div<{ width: number; height: number }>`
 const Progress = tw(Bar)`
     absolute bg-secondary
 `;
-
-function formatMillions(n: number) {
-  let formattedN;
-  let postfix;
-  // Dealing with Billions
-  if (n >= 1000) {
-    formattedN = n / 1000;
-    postfix = "Billion";
-  } else {
-    formattedN = n;
-    postfix = "Million";
-  }
-  return `${formatUSLocaleNumber(formattedN, 0, "USD")} ${postfix}`;
-}

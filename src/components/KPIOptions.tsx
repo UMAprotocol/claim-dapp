@@ -1,7 +1,13 @@
 import React from "react";
 import tw, { styled } from "twin.macro";
 
-import { useConnection, usePayouts, useTvl, useHasClaimed } from "../hooks";
+import {
+  useConnection,
+  usePayouts,
+  useTvl,
+  useHasClaimed,
+  useOptionsBalance,
+} from "../hooks";
 
 import Heading from "./Heading";
 import Button from "./Button";
@@ -9,6 +15,7 @@ import ProgressBar from "./ProgressBar";
 import Expiry from "./Expiry";
 import InfoList, { InfoProps } from "./InfoList";
 import Reason from "./Reason";
+import type { ClaimPhase } from "./MainSection";
 import { expiryDate, optionsName } from "../config";
 
 const defaultInfos: Record<string, InfoProps> = {
@@ -65,9 +72,14 @@ const defaultInfos: Record<string, InfoProps> = {
 type KPIOptionsProps = {
   onClaim: () => void;
   accountToClaim?: string;
+  claimPhase: ClaimPhase;
 };
-const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
-  const { isConnected } = useConnection();
+const KPIOptions: React.FC<KPIOptionsProps> = ({
+  onClaim,
+  accountToClaim,
+  claimPhase,
+}) => {
+  const { isConnected, account } = useConnection();
 
   const { data: tvlData } = useTvl();
   const { metaData, ...values } = usePayouts(accountToClaim);
@@ -75,6 +87,8 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
   const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
   const { hasClaimed, isLoading: isLoadingClaims } =
     useHasClaimed(accountToClaim);
+
+  const { balance: kpiBalance } = useOptionsBalance(account);
   const disableClaim =
     hasClaimed ||
     !isConnected ||
@@ -82,6 +96,10 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
     accountToClaim == null ||
     values.quantity === 0;
 
+  const disableRedeem =
+    !isConnected || !kpiBalance || parseFloat(kpiBalance) === 0;
+
+  const disableCTA = claimPhase === "claim" ? disableClaim : disableRedeem;
   const handleClick = React.useCallback(() => {
     onClaim();
   }, [onClaim]);
@@ -93,8 +111,8 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({ onClaim, accountToClaim }) => {
       <Content>
         <ContentHeader>
           <OptionName>uTVL-0621</OptionName>
-          <ClaimButton onClick={handleClick} disabled={disableClaim}>
-            Claim Options
+          <ClaimButton onClick={handleClick} disabled={disableCTA}>
+            {claimPhase === "claim" ? "Claim" : "Redeem"} Options
           </ClaimButton>
         </ContentHeader>
         <ContentMain>

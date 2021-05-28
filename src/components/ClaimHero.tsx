@@ -96,7 +96,7 @@ type HeroProps = {
   accountToClaim?: string;
 };
 
-const Hero: React.FC<HeroProps> = ({
+const ClaimHero: React.FC<HeroProps> = ({
   onClaim,
   onClaimAddressSubmit,
   accountToClaim,
@@ -287,4 +287,4 @@ const ErrorMsg = tw.span`
   text-primary`;
 const LoadingIcon = tw(SpinnerIcon)`animate-spin h-5 w-5 ml-3`;
 const ClaimErrorMsg = tw.span`text-left mt-4`;
-export default Hero;
+export default ClaimHero;

@@ -4,21 +4,22 @@ import tw from "twin.macro";
 import { MaxWidthWrapper } from "./Wrappers";
 import { Section, AccentSection } from "./Section";
 import Modal from "./Modal";
-import Hero from "./Hero";
+import ClaimHero from "./ClaimHero";
 import KPIOptions from "./KPIOptions";
 import OptionsList from "./OptionsList";
+import RedeemHero from "./RedeemHero";
 
 import Claim from "./Claim";
+import Redeem from "./Redeem";
 
 import { useModal } from "../hooks";
+import { hasExpired } from "../config";
+
+export type ClaimPhase = "redeem" | "claim";
+const claimPhase: ClaimPhase = hasExpired ? "redeem" : "claim";
 
 const MainSection: React.FC = () => {
-  const {
-    modalRef: claimModalRef,
-    isOpen: isClaimOpen,
-    open: openClaim,
-    close: closeClaim,
-  } = useModal();
+  const { modalRef, isOpen, open, close } = useModal();
   const [accountToClaim, setAccountToClaim] = React.useState<string>();
 
   const handleAddressSubmit = React.useCallback((address: string) => {
@@ -28,23 +29,35 @@ const MainSection: React.FC = () => {
   return (
     <>
       <AccentSection>
-        <Hero
-          onClaim={openClaim}
-          onClaimAddressSubmit={handleAddressSubmit}
-          accountToClaim={accountToClaim}
-        />
+        {claimPhase === "claim" ? (
+          <ClaimHero
+            onClaim={open}
+            onClaimAddressSubmit={handleAddressSubmit}
+            accountToClaim={accountToClaim}
+          />
+        ) : (
+          <RedeemHero onRedeem={open} />
+        )}
       </AccentSection>
       <Section>
         <MaxWidthWrapper>
           <OptionsWrapper>
-            <KPIOptions onClaim={openClaim} accountToClaim={accountToClaim} />
+            <KPIOptions
+              onClaim={open}
+              accountToClaim={accountToClaim}
+              claimPhase={claimPhase}
+            />
             <OptionsList />
           </OptionsWrapper>
         </MaxWidthWrapper>
       </Section>
-      {accountToClaim && (
-        <Modal ref={claimModalRef} isOpen={isClaimOpen} onClose={closeClaim}>
-          <Claim onCancel={closeClaim} accountToClaim={accountToClaim} />
+      {isOpen && (
+        <Modal ref={modalRef} isOpen={isOpen} onClose={close}>
+          {claimPhase === "claim" ? (
+            <Claim onCancel={close} accountToClaim={accountToClaim!} />
+          ) : (
+            <Redeem onCancel={close} />
+          )}
         </Modal>
       )}
     </>

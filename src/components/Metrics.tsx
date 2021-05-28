@@ -14,8 +14,13 @@ type TMetric = {
 type MetricProps = {
   big?: boolean;
   metric: TMetric;
+  className?: string;
 };
-const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
+export const Metric: React.FC<MetricProps> = ({
+  big = false,
+  metric,
+  className,
+}) => {
   const { value, quantifier, description, extendedDescription } = metric;
   const {
     tooltipOpen,
@@ -41,7 +46,17 @@ const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
         <BigHeading level={1}>{value}</BigHeading>
         <div>{quantifier}</div>
       </div>
-      <Description>{description}</Description>
+      <Description>
+        {description}
+        {extendedDescription && (
+          <InfoIcon onMouseOver={handleMouseOver} onMouseOut={hideTooltip} />
+        )}
+        {tooltipOpen && (
+          <Tooltip top={tooltipTop} left={tooltipLeft}>
+            {extendedDescription}
+          </Tooltip>
+        )}
+      </Description>
     </>
   ) : (
     <>
@@ -62,7 +77,7 @@ const Metric: React.FC<MetricProps> = ({ big = false, metric }) => {
       </Description>
     </>
   );
-  return <MetricWrapper>{Content}</MetricWrapper>;
+  return <MetricWrapper className={className}>{Content}</MetricWrapper>;
 };
 const MetricWrapper = tw.div`
   first:row-span-2 py-3 lg:py-5 border-b border-black border-opacity-50 flex flex-col justify-between

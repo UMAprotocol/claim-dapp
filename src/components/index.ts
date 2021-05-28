@@ -8,3 +8,4 @@ export { default as Portal } from "./Portal";
 export { default as Tooltip } from "./Tooltip";
 export { default as NetworkAlert } from "./NetworkAlert";
 export { default as MainSection } from "./MainSection";
+export { default as RedeeemHero } from "./RedeemHero";

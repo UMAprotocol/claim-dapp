@@ -2,8 +2,9 @@ import { ethers } from "ethers";
 import { useQuery } from "react-query";
 
 import { useConnection } from "./useConnection";
-import { KPIOptionsToken, infuraId } from "../config";
+import { ADDRESSES, infuraId } from "../config";
 import { ValidChainId } from "../utils/chainId";
+import { getKpiTokenContract } from "../utils";
 
 export function useOptionsSupply() {
   const { provider, chainId } = useConnection();
@@ -28,11 +29,8 @@ async function getOptionsSupply(
     web3Provider != null
       ? web3Provider
       : new ethers.providers.InfuraProvider(chainId, infuraId);
-  const contract = new ethers.Contract(
-    KPIOptionsToken.address(chainId),
-    KPIOptionsToken.abi,
-    provider
-  );
+  const contract = getKpiTokenContract(provider, chainId);
+  contract.connect(provider);
   const supply = await contract.totalSupply();
   return supply;
 }
