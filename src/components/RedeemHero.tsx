@@ -1,5 +1,5 @@
 import React from "react";
-import tw, { styled, theme } from "twin.macro";
+import tw, { styled } from "twin.macro";
 
 import { MaxWidthWrapper } from "./Wrappers";
 import UnstyledHeading from "./Heading";
@@ -17,9 +17,7 @@ const expirationTvl = formatUSLocaleNumber(
 );
 
 type Props = {
-  accountToClaim?: string;
   onRedeem: () => void;
-  onClaimAddressSubmit?: (address: string) => void;
 };
 const RedeemHero: React.FC<Props> = ({ onRedeem }) => {
   const { account, isConnected } = useConnection();

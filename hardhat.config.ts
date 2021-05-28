@@ -21,7 +21,7 @@ task(
   }
 );
 const config: HardhatUserConfig = {
-  solidity: "0.7.3",
+  solidity: "0.8.4",
   networks: {
     hardhat: {
       chainId: 1337,

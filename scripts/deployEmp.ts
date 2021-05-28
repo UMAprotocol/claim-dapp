@@ -24,7 +24,7 @@ const fiveMinutesFromNow = () => new Date().getTime() + 1000 * 60 * 5;
 
 export async function deployEmp(hre: typeof HardhatRuntimeEnvironment) {
   const { ethers } = hre;
-  const priceFeedIdentifier = ethers.utils.formatBytes32String("uTVL_KPI_UMA"); //padRight(uft8ToString("uTVL_KPI_UMA")),
+  const priceFeedIdentifier = ethers.utils.formatBytes32String("uTVL_KPI_UMA");
   const [deployer, receiver] = await ethers.getSigners();
   const finder = await new Finder__factory(deployer).deploy();
 
@@ -200,4 +200,11 @@ export async function deployEmp(hre: typeof HardhatRuntimeEnvironment) {
       await collateralToken.balanceOf(receiver.address)
     ).toString()}`
   );
+
+  console.log(`
+    To test the app locally, you might want to add those env variables:
+    REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS=${syntheticToken.address}
+    REACT_APP_PUBLIC_LOCAL_KPI_EMP=${emp.address}
+    REACT_APP_PUBLIC_HAS_EXPIRED=1
+`);
 }

@@ -79,7 +79,7 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({
   accountToClaim,
   claimPhase,
 }) => {
-  const { isConnected } = useConnection();
+  const { isConnected, account } = useConnection();
 
   const { data: tvlData } = useTvl();
   const { metaData, ...values } = usePayouts(accountToClaim);
@@ -88,7 +88,7 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({
   const { hasClaimed, isLoading: isLoadingClaims } =
     useHasClaimed(accountToClaim);
 
-  const { balance: kpiBalance } = useOptionsBalance(accountToClaim);
+  const { balance: kpiBalance } = useOptionsBalance(account);
   const disableClaim =
     hasClaimed ||
     !isConnected ||
@@ -97,7 +97,7 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({
     values.quantity === 0;
 
   const disableRedeem =
-    !isConnected || Boolean(kpiBalance && parseFloat(kpiBalance) === 0);
+    !isConnected || !kpiBalance || parseFloat(kpiBalance) === 0;
 
   const disableCTA = claimPhase === "claim" ? disableClaim : disableRedeem;
   const handleClick = React.useCallback(() => {

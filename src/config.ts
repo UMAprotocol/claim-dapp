@@ -109,7 +109,7 @@ export const ADDRESSES: Record<number, { [k: string]: string }> = {
       process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || "",
   },
   42: {
-    emp: "",
+    emp: process.env.REACT_APP_PUBLIC_KOVAN_KPI_EMP || "",
     kpiOptionsToken: process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "",
   },
   1337: {
@@ -131,7 +131,7 @@ export const URLS = {
 };
 
 export const expirationTvl = +(
-  process.env.REACT_APP_PUBLIC_EXPIRATION_TVL ?? 200_000_000
+  process.env.REACT_APP_PUBLIC_EXPIRATION_TVL ?? NaN
 );
 
 const maxPayout = 2;

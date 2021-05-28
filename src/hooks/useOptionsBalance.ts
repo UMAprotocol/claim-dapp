@@ -14,6 +14,7 @@ export function useOptionsBalance(address?: string) {
       enabled: address != null,
     }
   );
+
   return {
     balance: data ? ethers.utils.formatEther(data) : undefined,
     ...others,

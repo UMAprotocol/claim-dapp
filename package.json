@@ -41,7 +41,7 @@
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx . --color",
     "hardhat": "TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat",
-    "start-node": "yarn hardhat node",
+    "start-node": "yarn hardhat node --hostname '0.0.0.0'",
     "deploy-emp": "yarn hardhat --network localhost deployEmp"
   },
   "eslintConfig": {

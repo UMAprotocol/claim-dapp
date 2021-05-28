@@ -4,7 +4,7 @@ import tw from "twin.macro";
 import { MaxWidthWrapper } from "./Wrappers";
 import { Section, AccentSection } from "./Section";
 import Modal from "./Modal";
-import Hero from "./Hero";
+import ClaimHero from "./ClaimHero";
 import KPIOptions from "./KPIOptions";
 import OptionsList from "./OptionsList";
 import RedeemHero from "./RedeemHero";
@@ -30,17 +30,13 @@ const MainSection: React.FC = () => {
     <>
       <AccentSection>
         {claimPhase === "claim" ? (
-          <Hero
+          <ClaimHero
             onClaim={open}
             onClaimAddressSubmit={handleAddressSubmit}
             accountToClaim={accountToClaim}
           />
         ) : (
-          <RedeemHero
-            accountToClaim={accountToClaim}
-            onClaimAddressSubmit={handleAddressSubmit}
-            onRedeem={open}
-          />
+          <RedeemHero onRedeem={open} />
         )}
       </AccentSection>
       <Section>
