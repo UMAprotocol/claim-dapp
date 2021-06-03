@@ -28,16 +28,6 @@ jobs:
           name: Run tests
           command: yarn test --watchAll=false
 
-  deploy:
-    docker:
-      - image: circleci/node:lts
-    steps:
-      - run:
-          name: Run deploy
-          command: |
-            curl -X POST \
-            https://api.vercel.com/v1/integrations/deploy/{{ VERCEL_HOOK }}
-
 workflows:
   version: 2.1
   claim-test:
@@ -46,11 +36,3 @@ workflows:
       - test:
           requires:
             - build
-      - deploy:
-          context: claim-dapp
-          requires:
-            - build
-            - test
-          filters:
-            branches:
-              only: master
