@@ -19,7 +19,7 @@ export type ClaimPhase = "redeem" | "claim";
 const claimPhase: ClaimPhase = hasExpired ? "redeem" : "claim";
 
 const MainSection: React.FC = () => {
-  const { modalRef, isOpen, open, close } = useModal();
+  const { isOpen, open, close } = useModal();
   const [accountToClaim, setAccountToClaim] = React.useState<string>();
 
   const handleAddressSubmit = React.useCallback((address: string) => {
@@ -52,7 +52,7 @@ const MainSection: React.FC = () => {
         </MaxWidthWrapper>
       </Section>
       {isOpen && (
-        <Modal ref={modalRef} isOpen={isOpen} onClose={close}>
+        <Modal isOpen={isOpen} onClose={close}>
           {claimPhase === "claim" ? (
             <Claim onCancel={close} accountToClaim={accountToClaim!} />
           ) : (
