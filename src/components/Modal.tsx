@@ -10,27 +10,6 @@ type ModalProps = {
   onClose: () => void;
 };
 
-// const ModalComponent: React.ForwardRefRenderFunction<
-//   HTMLElement,
-//   React.PropsWithChildren<ModalProps>
-// > = ({ children, isOpen, onClose }, externalRef) => {
-//   if (!isOpen) {
-//     return null;
-//   }
-//   return (
-//     <Portal>
-//       <DialogOverlay ref={externalRef}>
-//         <ExitButton onClick={onClose}>
-//           <Times />
-//         </ExitButton>
-//         <Content>{children}</Content>
-//       </DialogOverlay>
-//       <BgBlur />
-//     </Portal>
-//   );
-// };
-//const Modal = React.forwardRef(ModalComponent);
-
 const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose }) => {
   return (
     <Overlay isOpen={isOpen} onDismiss={onClose}>
@@ -44,7 +23,6 @@ const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose }) => {
   );
 };
 
-//Modal.displayName = "Modal";
 export default Modal;
 
 const Overlay = tw(DialogOverlay)`
