@@ -204,6 +204,7 @@ export async function deployEmp(hre: typeof HardhatRuntimeEnvironment) {
   console.log(`
     To test the app locally, you might want to add those env variables:
     REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS=${syntheticToken.address}
+    REACT_APP_PUBLIC_LOCAL_UMA_ADDRESS=${collateralToken.address}
     REACT_APP_PUBLIC_LOCAL_KPI_EMP=${emp.address}
     REACT_APP_PUBLIC_HAS_EXPIRED=1
 `);
