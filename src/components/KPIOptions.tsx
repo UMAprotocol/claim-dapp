@@ -16,9 +16,9 @@ import Expiry from "./Expiry";
 import InfoList, { InfoProps } from "./InfoList";
 import Reason from "./Reason";
 import type { ClaimPhase } from "./MainSection";
-import { expiryDate, optionsName } from "../config";
+import { expiryDate, optionsName, expirationPayout } from "../config";
 
-const defaultInfos: Record<string, InfoProps> = {
+const defaultClaimInfos: Record<string, InfoProps> = {
   quantity: {
     label: "Quantity",
     value: "-",
@@ -69,6 +69,35 @@ const defaultInfos: Record<string, InfoProps> = {
   },
 };
 
+const redeemInfos = {
+  quantity: {
+    label: "Quantity",
+    value: "-",
+    unit: `${optionsName}`,
+  },
+  expiry: {
+    label: "Expiry",
+    value: expiryDate.replace(/UTC/g, ""),
+    description: (
+      <span>
+        The <strong>UTC</strong> time at which your options will{" "}
+        <strong>expire</strong>.
+      </span>
+    ),
+  },
+  payoutPerOption: {
+    label: "Payout per option",
+    value: expirationPayout,
+    unit: "UMA",
+    description: (
+      <span>
+        The amount of <strong>UMA</strong> all of your {optionsName} options are
+        worth <strong>based on UMA’s TVL at expiry.</strong>
+      </span>
+    ),
+  },
+};
+
 type KPIOptionsProps = {
   onClaim: () => void;
   accountToClaim?: string;
@@ -83,8 +112,22 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({
 
   const { data: tvlData } = useTvl();
   const { metaData, ...values } = usePayouts(accountToClaim);
+  const { balance: optionsBalance } = useOptionsBalance(account);
 
-  const infos = React.useMemo(() => updateInfos({ ...values }), [values]);
+  const infos = React.useMemo(
+    () =>
+      claimPhase === "claim"
+        ? updateClaimInfos({ ...values })
+        : {
+            ...redeemInfos,
+            quantity: {
+              ...redeemInfos.quantity,
+              value: optionsBalance ?? "-",
+            },
+          },
+    [claimPhase, values, optionsBalance]
+  );
+  console.log({ infos });
   const { hasClaimed, isLoading: isLoadingClaims } =
     useHasClaimed(accountToClaim);
 
@@ -164,11 +207,11 @@ const ContentHeader = tw.div`
 `;
 const ContentMain = tw.div`p-5`;
 
-function updateInfos(values: { [key: string]: unknown } | undefined) {
+function updateClaimInfos(values: { [key: string]: unknown } | undefined) {
   return values
-    ? Object.keys(defaultInfos).reduce((obj, key) => {
-        const value = values[key] || defaultInfos[key].value;
-        return { ...obj, [key]: { ...defaultInfos[key], value } };
+    ? Object.keys(defaultClaimInfos).reduce((obj, key) => {
+        const value = values[key] || defaultClaimInfos[key].value;
+        return { ...obj, [key]: { ...defaultClaimInfos[key], value } };
       }, {})
-    : defaultInfos;
+    : defaultClaimInfos;
 }
