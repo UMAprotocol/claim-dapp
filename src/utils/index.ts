@@ -105,3 +105,16 @@ export function getKpiTokenContract(
       })
   );
 }
+
+export function getERC20Contract(
+  address: string,
+  signerOrProvider?: ethers.Signer | ethers.providers.Provider
+) {
+  return EthersContracts.ERC20__factory.connect(
+    address,
+    signerOrProvider ??
+      new ethers.providers.InfuraProvider("mainnet", {
+        apiKey: infuraId,
+      })
+  );
+}

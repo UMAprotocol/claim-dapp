@@ -13,15 +13,11 @@ import {
   useConnection,
   useLatestTransaction,
   useOptionsBalance,
+  useUMABalance,
 } from "../hooks";
-import { etherscanUrlFromTx, formatMillions } from "../utils";
+import { etherscanUrlFromTx } from "../utils";
 import { splitAddress } from "../utils/address";
-import {
-  expiryDate,
-  expirationTvl,
-  expirationPayout,
-  optionsName,
-} from "../config";
+import { expiryDate, expirationPayout, optionsName } from "../config";
 
 type Props = { onCancel: () => void };
 const Redeem: React.FC<Props> = ({ onCancel }) => {
@@ -30,7 +26,8 @@ const Redeem: React.FC<Props> = ({ onCancel }) => {
   const { transaction: tx, state: txState } = useLatestTransaction();
 
   const logoRef = React.useRef<SVGSVGElement>(null);
-  const { balance } = useOptionsBalance(account);
+  const { balance: optionsBalance } = useOptionsBalance(account);
+  const { balance: umaBalance } = useUMABalance(account);
 
   return (
     <Wrapper>
@@ -51,31 +48,31 @@ const Redeem: React.FC<Props> = ({ onCancel }) => {
         </Heading>
       </Header>
       <Content>
-        <OptionName>{optionsName}</OptionName>
+        <Badge>
+          <BadgeBalance>
+            {umaBalance} <span>UMA</span>
+          </BadgeBalance>
+          <BadgeBalance>
+            {optionsBalance} <span>{optionsName}</span>
+          </BadgeBalance>
+        </Badge>
         <Metrics>
           <div>
             <Label>Quantity</Label>
             <Value>
-              {balance ?? "-"} <Unit>{optionsName}</Unit>
+              {optionsBalance ?? "-"} <Unit>{optionsName}</Unit>
+            </Value>
+          </div>
+          <div>
+            <Label>Payout per option</Label>
+            <Value>
+              {expirationPayout ?? "-"} <AccentUnit>UMA</AccentUnit>
             </Value>
           </div>
           <div>
             <Label>Expiry</Label>
             <Value>{expiryDate}</Value>
           </div>
-          <div>
-            <Label>Payout</Label>
-            <Value>
-              {expirationPayout ?? "-"} <Unit>UMA</Unit>
-            </Value>
-          </div>
-          <div>
-            <Label>TVL at expiry</Label>
-            <Value>
-              {expirationTvl ? formatMillions(expirationTvl / 10 ** 6) : "-"}
-            </Value>
-          </div>
-
           <div>
             <Label>Account</Label>
             <Value>{splitAddress(account!)}</Value>
@@ -120,12 +117,9 @@ export default Redeem;
 
 const Wrapper = tw.div`w-full flex flex-col items-stretch text-sm mt-3`;
 const Header = tw.header`flex flex-col items-center justify-center`;
-const Content = tw.div`mt-10 divide-y divide-gray`;
+const Content = tw.div`mt-10`;
 const Heading = tw(UnstyledHeading)`text-xl text-center leading-relaxed mt-6`;
-const OptionName = styled(UnstyledHeading)`
-  font-size: 1.75rem;
-  margin-bottom: 10px;
-`;
+
 const Metrics = tw.div`
     grid grid-cols-2 gap-x-3 gap-y-5 mb-10 pt-5
 `;
@@ -142,4 +136,27 @@ const EtherscanLink = tw(
   Link
 )`mt-4 p-2 text-primary text-right hover:underline`;
 const LinkIcon = tw(ExternalLink)`w-3 h-3 inline-block`;
-const Unit = tw.span`text-gray text-sm font-light ml-1`;
+const Unit = tw.span`text-sm font-light ml-1`;
+const AccentUnit = tw(Unit)`
+  text-primary
+`;
+const BadgeBalance = styled.div`
+  ${tw`font-bold overflow-ellipsis overflow-hidden text-2xl `};
+  & > span {
+    font-weight: initial;
+    white-space: nowrap;
+    ${tw`text-primary`}
+  }
+
+  &:last-of-type > span {
+    color: inherit;
+  }
+
+  &:last-of-type {
+    margin-left: auto;
+    padding-left: 20px;
+  }
+`;
+const Badge = tw.div`
+bg-gray-badge text-white px-4 py-1 rounded-md text-xl flex divide-x max-w-sm
+`;

@@ -6,9 +6,20 @@ import UnstyledHeading from "./Heading";
 import Button from "./Button";
 import { Metric } from "./Metrics";
 import { ReactComponent as Logo } from "../assets/kpi-frame.svg";
-import { useConnection, useOnboard, useOptionsBalance } from "../hooks";
-import { expirationTvl as rawExpirationTvl, expirationPayout } from "../config";
+import {
+  useConnection,
+  useOnboard,
+  useOptionsBalance,
+  useUMABalance,
+} from "../hooks";
+import {
+  expirationTvl as rawExpirationTvl,
+  expirationPayout,
+  optionsName,
+  expiryDate,
+} from "../config";
 import { formatUSLocaleNumber } from "../utils";
+import { splitAddress } from "../utils/address";
 
 const expirationTvl = formatUSLocaleNumber(
   Number(rawExpirationTvl) / 10 ** 6,
@@ -30,9 +41,15 @@ const RedeemHero: React.FC<Props> = ({ onRedeem }) => {
     }
   }, [isConnected, onRedeem, initOnboard]);
 
-  const { balance } = useOptionsBalance(account);
+  const { balance: _optionsBalance } = useOptionsBalance(account);
+  const { balance: _umaBalance } = useUMABalance(account);
 
-  const redeemError = Boolean(balance && parseFloat(balance) === 0);
+  const redeemError = Boolean(
+    _optionsBalance && parseFloat(_optionsBalance) === 0
+  );
+
+  const umaBalance = _umaBalance ?? "-";
+  const optionsBalance = _optionsBalance || "-";
 
   return (
     <MaxWidthWrapper>
@@ -45,7 +62,41 @@ const RedeemHero: React.FC<Props> = ({ onRedeem }) => {
           <Subtitle>
             The more UMA's TVL grows the more the KPI Options are worth!
           </Subtitle>
-
+          <OptionsBadge>
+            <BadgeHeader>
+              <BadgeTitle>Redeem uTVL Options</BadgeTitle>
+              <BadgeBalanceWrapper>
+                <BadgeBalance>
+                  {umaBalance} <span>UMA</span>
+                </BadgeBalance>
+                <BadgeBalance>
+                  {optionsBalance} <span>{optionsName}</span>
+                </BadgeBalance>
+              </BadgeBalanceWrapper>
+            </BadgeHeader>
+            <BadgeStats>
+              <div>
+                <StatTitle>Quantity</StatTitle>
+                <div>
+                  {optionsBalance} {optionsName}
+                </div>
+              </div>
+              <div>
+                <StatTitle>Expiry</StatTitle>
+                <div>{expiryDate}</div>
+              </div>
+              <div>
+                <StatTitle>Payout per option</StatTitle>
+                <div>
+                  {expirationPayout} <span>UMA</span>
+                </div>
+              </div>
+              <div>
+                <StatTitle>Account</StatTitle>
+                <div>{account ? splitAddress(account) : "-"}</div>
+              </div>
+            </BadgeStats>
+          </OptionsBadge>
           <ButtonsWrapper>
             <StyledButton onClick={handleCTAClick} disabled={redeemError}>
               {isConnected ? "Redeem Options" : "Connect Wallet"}
@@ -123,3 +174,38 @@ const StyledMetric = styled(Metric)`
   width: fit-content;
 `;
 const ErrorMsg = tw.span`text-left mt-4`;
+const OptionsBadge = styled.div`
+  max-width: 500px;
+  ${tw`w-full rounded-lg my-11`};
+  & span {
+    ${tw`text-primary`}
+  }
+`;
+
+const BadgeTitle = tw.h3`text-secondary text-base mb-4`;
+const BadgeStats = tw.div`
+  bg-white bg-opacity-50 grid grid-cols-2 py-3  px-6 rounded-b-md gap-x-24 gap-y-3
+`;
+const StatTitle = tw.div`
+text-black text-opacity-50
+`;
+const BadgeHeader = tw.div`
+bg-gray-badge text-white px-6 py-4 rounded-t-md text-3xl
+`;
+const BadgeBalanceWrapper = tw.div`flex divide-x`;
+const BadgeBalance = styled.div`
+  ${tw`font-bold overflow-ellipsis overflow-hidden `};
+  & > span {
+    font-weight: initial;
+    white-space: nowrap;
+  }
+
+  &:last-of-type > span {
+    color: inherit;
+  }
+
+  &:last-of-type {
+    margin-left: auto;
+    padding-left: 20px;
+  }
+`;
