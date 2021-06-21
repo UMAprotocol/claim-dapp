@@ -127,7 +127,7 @@ const KPIOptions: React.FC<KPIOptionsProps> = ({
           },
     [claimPhase, values, optionsBalance]
   );
-  console.log({ infos });
+
   const { hasClaimed, isLoading: isLoadingClaims } =
     useHasClaimed(accountToClaim);
 
