@@ -107,14 +107,17 @@ export const ADDRESSES: Record<number, { [k: string]: string }> = {
     emp: process.env.REACT_APP_PUBLIC_MAINNET_KPI_EMP || "",
     kpiOptionsToken:
       process.env.REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS || "",
+    uma: process.env.REACT_APP_PUBLIC_MAINNET_UMA_ADDRESS || "",
   },
   42: {
     emp: process.env.REACT_APP_PUBLIC_KOVAN_KPI_EMP || "",
     kpiOptionsToken: process.env.REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS || "",
+    uma: process.env.REACT_APP_PUBLIC_KOVAN_UMA_ADDRESS || "",
   },
   1337: {
     emp: process.env.REACT_APP_PUBLIC_LOCAL_KPI_EMP || "",
     kpiOptionsToken: process.env.REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS || "",
+    uma: process.env.REACT_APP_PUBLIC_LOCAL_UMA_ADDRESS || "",
   },
 };
 export const currentWindowIndex = Number(

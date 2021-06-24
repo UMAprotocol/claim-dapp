@@ -1,14 +1,17 @@
 import React from "react";
+import { useQueryClient } from "react-query";
 import { useConnection } from "./useConnection";
 import { useTransactions } from "./useTransactions";
+
 import { ethers } from "ethers";
 import { getKpiOptionsEMP, getKpiTokenContract } from "../utils";
-import { ADDRESSES } from "../config";
 
 export function useRedeem() {
   const { account, signer, chainId } = useConnection();
   const [error, setError] = React.useState<Error>();
   const { addTransaction } = useTransactions();
+
+  const queryClient = useQueryClient();
   const redeemCallback = React.useCallback(async () => {
     if (!chainId || !account || !signer) {
       return;
@@ -24,13 +27,24 @@ export function useRedeem() {
       );
       addTransaction({ ...approveTx, label: "approve" });
       await approveTx.wait();
-      emp
-        .settleExpired()
-        .then((tx) => addTransaction({ ...tx, label: "redeem" }));
+      const onComplete = () => {
+        // This will refetch all queries that have a key starting with "balance"
+        queryClient.invalidateQueries("balance");
+        queryClient.refetchQueries("balance");
+      };
+      emp.settleExpired().then((tx) => {
+        addTransaction(
+          {
+            ...tx,
+            label: "redeem",
+          },
+          onComplete
+        );
+      });
     } catch (e) {
       setError(e);
     }
-  }, [account, addTransaction, chainId, signer]);
+  }, [account, addTransaction, chainId, queryClient, signer]);
 
   return { redeemCallback, error };
 }

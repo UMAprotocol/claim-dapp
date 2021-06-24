@@ -14,6 +14,7 @@ module.exports = {
           dark: "#3B3B3B",
           darker: "#313131",
           darkest: "#191919",
+          badge: "#272528",
         },
       },
     },

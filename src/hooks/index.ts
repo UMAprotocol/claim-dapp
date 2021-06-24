@@ -12,4 +12,4 @@ export * from "./usePayouts";
 export * from "./useAddressInput";
 export * from "./useOnboard";
 export * from "./useRedeem";
-export * from "./useOptionsBalance";
+export * from "./useBalance";

@@ -20,6 +20,9 @@ The app needs the following environment variables to function correctly:
 - `REACT_APP_PUBLIC_MAINNET_KPI_TOKEN_ADDRESS`
 - `REACT_APP_PUBLIC_KOVAN_KPI_TOKEN_ADDRESS`
 - `REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS`
+- `REACT_APP_PUBLIC_MAINNET_UMA_ADDRESS`
+- `REACT_APP_PUBLIC_KOVAN_UMA_ADDRESS`
+- `REACT_APP_PUBLIC_LOCAL_UMA_ADDRESS`
 - `REACT_APP_PUBLIC_MAINNET_KPI_EMP`
 - `REACT_APP_PUBLIC_LOCAL_KPI_EMP`
 - `REACT_APP_PUBLIC_INFURA_ID`
@@ -38,7 +41,7 @@ Run `yarn start-node` to run a local hardhat node.
 
 ### Deploy an EMP and bring it to expiry.
 
-Run `yarn deploy-emp` to run an hardhat task that deploys an EMP and brings it to expiry. You will need to save the test synth address and the test emp address and use them as values for `REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS` and `REACT_APP_PUBLIC_LOCAL_KPI_EMP`. Also set `REACT_APP_PUBLIC_HAS_EXPIRED` to `1`
+Run `yarn deploy-emp` to run an hardhat task that deploys an EMP and brings it to expiry. You will need to save the test synth address and the test emp address and use them as values for `REACT_APP_PUBLIC_LOCAL_KPI_TOKEN_ADDRESS` , `REACT_APP_PUBLIC_LOCAL_UMA_ADDRESS`and `REACT_APP_PUBLIC_LOCAL_KPI_EMP`. Also set `REACT_APP_PUBLIC_HAS_EXPIRED` to `1`
 
 ### Set up MetaMask and try the app.
 
