@@ -42,13 +42,13 @@ const RedeemHero: React.FC<Props> = ({ onRedeem }) => {
   }, [isConnected, onRedeem, initOnboard]);
 
   const { balance: _optionsBalance } = useOptionsBalance(account);
-  const { balance: _umaBalance } = useUMABalance(account);
 
   const redeemError = Boolean(
     _optionsBalance && parseFloat(_optionsBalance) === 0
   );
 
-  const umaBalance = _umaBalance ?? "-";
+  const _umaPayout = Number(_optionsBalance) * Number(expirationPayout);
+  const umaPayout = !isNaN(_umaPayout) ? _umaPayout.toFixed(1) : "-";
   const optionsBalance = _optionsBalance || "-";
 
   return (
@@ -67,8 +67,9 @@ const RedeemHero: React.FC<Props> = ({ onRedeem }) => {
               <BadgeTitle>Redeem uTVL Options</BadgeTitle>
               <BadgeBalanceWrapper>
                 <BadgeBalance>
-                  {umaBalance} <span>UMA</span>
+                  {umaPayout} <span>UMA</span>
                 </BadgeBalance>
+                <BadgeDivider />
                 <BadgeBalance>
                   {optionsBalance} <span>{optionsName}</span>
                 </BadgeBalance>
@@ -192,9 +193,10 @@ text-black text-opacity-50
 const BadgeHeader = tw.div`
 bg-gray-badge text-white px-6 py-4 rounded-t-md text-3xl
 `;
-const BadgeBalanceWrapper = tw.div`flex divide-x`;
+const BadgeBalanceWrapper = tw.div`flex justify-between`;
 const BadgeBalance = styled.div`
   ${tw`font-bold overflow-ellipsis overflow-hidden `};
+
   & > span {
     font-weight: initial;
     white-space: nowrap;
@@ -203,9 +205,10 @@ const BadgeBalance = styled.div`
   &:last-of-type > span {
     color: inherit;
   }
+`;
 
-  &:last-of-type {
-    margin-left: auto;
-    padding-left: 20px;
-  }
+const BadgeDivider = styled.div`
+  min-height: 36px;
+  background-color: #fff;
+  min-width: 1px;
 `;
