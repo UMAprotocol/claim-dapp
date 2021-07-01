@@ -142,7 +142,7 @@ const minPayout = 0.1;
 export const expirationPayout = Math.max(
   minPayout,
   Math.min(maxPayout, expirationTvl / 10 ** 9)
-).toFixed(3);
+).toFixed(2);
 
 export const hasExpired =
   Boolean(process.env.REACT_APP_PUBLIC_HAS_EXPIRED) ??
