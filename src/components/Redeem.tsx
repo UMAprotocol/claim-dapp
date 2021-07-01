@@ -88,7 +88,7 @@ const Redeem: React.FC<Props> = ({ onCancel }) => {
 
             {txState?.status === "loading" ? (
               <Button>
-                {tx?.label === "redeem" ? "Reediming..." : "Approving..."}
+                {tx?.label === "redeem" ? "Redeeming..." : "Approving..."}
                 <LoadingIcon />
               </Button>
             ) : (
