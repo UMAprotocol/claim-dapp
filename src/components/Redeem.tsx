@@ -27,7 +27,8 @@ const Redeem: React.FC<Props> = ({ onCancel }) => {
 
   const logoRef = React.useRef<SVGSVGElement>(null);
   const { balance: optionsBalance } = useOptionsBalance(account);
-  const { balance: umaBalance } = useUMABalance(account);
+  const _umaPayout = Number(optionsBalance) * Number(expirationPayout);
+  const umaPayout = !isNaN(_umaPayout) ? _umaPayout.toFixed(1) : "-";
 
   return (
     <Wrapper>
@@ -50,7 +51,7 @@ const Redeem: React.FC<Props> = ({ onCancel }) => {
       <Content>
         <Badge>
           <BadgeBalance>
-            {umaBalance} <span>UMA</span>
+            {umaPayout} <span>UMA</span>
           </BadgeBalance>
           <BadgeBalance>
             {optionsBalance} <span>{optionsName}</span>
