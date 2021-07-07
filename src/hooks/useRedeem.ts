@@ -6,6 +6,10 @@ import { useTransactions } from "./useTransactions";
 import { ethers } from "ethers";
 import { getKpiOptionsEMP, getKpiTokenContract } from "../utils";
 
+// max uint value is 2^256 - 1
+const MAX_UINT_VAL = ethers.constants.MaxUint256;
+const INFINITE_APPROVAL_AMOUNT = MAX_UINT_VAL;
+
 export function useRedeem() {
   const { account, signer, chainId } = useConnection();
   const [error, setError] = React.useState<Error>();
@@ -21,12 +25,18 @@ export function useRedeem() {
       const kpiOptionsToken = getKpiTokenContract(signer, chainId);
       const emp = getKpiOptionsEMP(signer, chainId);
 
-      const approveTx = await kpiOptionsToken.approve(
-        emp.address,
-        ethers.utils.parseEther("20000000000000000000")
-      );
-      addTransaction({ ...approveTx, label: "approve" });
-      await approveTx.wait();
+      const allowance = await kpiOptionsToken.allowance(account, emp.address);
+      const balance = await kpiOptionsToken.balanceOf(account);
+      const hasToApprove = allowance.lt(balance);
+      if (hasToApprove) {
+        const approveTx = await kpiOptionsToken.approve(
+          emp.address,
+          INFINITE_APPROVAL_AMOUNT
+        );
+
+        addTransaction({ ...approveTx, label: "approve" });
+        await approveTx.wait();
+      }
       const onComplete = () => {
         // This will refetch all queries that have a key starting with "balance"
         queryClient.invalidateQueries("balance");
