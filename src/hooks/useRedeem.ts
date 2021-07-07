@@ -7,7 +7,7 @@ import { ethers } from "ethers";
 import { getKpiOptionsEMP, getKpiTokenContract } from "../utils";
 
 // max uint value is 2^256 - 1
-const MAX_UINT_VAL = ethers.BigNumber.from(2).pow(256).sub(1);
+const MAX_UINT_VAL = ethers.constants.MaxUint256;
 const INFINITE_APPROVAL_AMOUNT = MAX_UINT_VAL;
 
 export function useRedeem() {
