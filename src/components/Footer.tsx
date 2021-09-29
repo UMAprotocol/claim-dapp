@@ -40,7 +40,6 @@ const Footer: React.FC = () => {
           <Link href="/">
             <Logo />
           </Link>
-          <FooterParagraph>Risk Labs © 2020</FooterParagraph>
         </div>
         <div>
           <LinkList>
